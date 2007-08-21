@@ -1,5 +1,5 @@
 #labels Featured
-#Intro Wiki Page.
+Project's Intro Wiki page.
 
 = pswrdgen =
 Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.  Python console based.  Future support is also planned for Microsoft's .NET IronPython.
