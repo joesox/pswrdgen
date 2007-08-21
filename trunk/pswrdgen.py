@@ -1,9 +1,9 @@
 import os, sys, random
 sys.path.append("C:\\Program Files\\WordNet\\2.1\\dict")
-__version__ = '0.1.0'
+__version__ = '0.1.1'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'www.joeswammi.com/python/docs/pswrdgen'
-__doc__ = 'Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.'
+__doc__ = 'Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping. Needs WordNet 2.1'
 
 """
 Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
@@ -44,7 +44,7 @@ class pswrdgen:
             print "*******************************"
             choice = raw_input("> ")
             if(choice.isdigit() == True):
-                if(int(choice) >= 1 and int(choice) < 6):
+                if(int(choice) >= 1 and int(choice) < 7):
                     if(int(choice) == 1):
                         y=0
                         while(y < self.GENCOUNT):
