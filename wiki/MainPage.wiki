@@ -1,6 +1,4 @@
 #labels Featured
-Project's Intro Wiki page.
-
 = pswrdgen =
 Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.  Python console based.  Future support is also planned for Microsoft's .NET IronPython.
 
@@ -18,4 +16,4 @@ Current module documentation hosted [http://joeswammi.com/python/docs/pswrdgen/i
 
 == Project Contribution ==
 Please feel feel to contribute to this project.  Currently, I am soliciting non-Windows users for testing and development.  However, all OS users are welcome.  It would be nice to have some other config setups available for non Windows users.
-If you need a SVN to use with subversion, I am using [http://pysvn.tigris.org pysvn 1.5.2]
+If you need a SVN to use with subversion, I am using [http://www.rapidsvn.org/download/release/0.9.4/ RapidSVN]
