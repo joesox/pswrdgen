@@ -91,28 +91,26 @@ class pswrdgen:
     """Change the configuration or except the default configuration."""
     def changedefaults(self):
         self.change_min()
-
-        maxgood = False
-        while not maxgood:            
-            userinput = raw_input("What is the maximum length of your password(default="+str(self.MAXLENGTH)+"(must be greater than 5))?: ")
+        
+        maxmsg = "What is the maximum length of your password(default=%i(must be greater than 5))?: "
+        while true:            
+            userinput = raw_input(maxmsg%self.MAXLENGTH)
             if userinput.isdigit():
                 if(int(userinput) <= 5):
-                    maxgood = False
+                    pass
                 elif(int(userinput) < self.MINLENGTH):
                     print "MAXLENGTH can not be smaller than the MINLENGTH"
-                    maxgood = False
                 else:
                     self.MAXLENGTH = int(userinput)
-                    maxgood = True
+                    break
             
-        userinput = raw_input("How many capital letters in your password(default="+str(self.CAPLENGTH)+")?: ")
+        userinput = raw_input("How many capital letters in your password(default=%i)?: "%self.CAPLENGTH)
         self.CAPLENGTH = int(userinput)
         if(self.CAPLENGTH <=0 or userinput.strip() == ""):
             userinput = raw_input("How many capital letters in your password(must be greater than 0)?: ")
             self.CAPLENGTH = int(userinput)
             
         userinput = input("Type in your swap rules dictionary(default="+str(self.SWAPS)+")?: ")
-	print userinput
         self.SWAPS = dict(userinput)
 
         print "DEFAULTS CHANGED TO:"
