@@ -46,10 +46,8 @@ class pswrdgen:
             if(choice.isdigit() == True):
                 if(int(choice) >= 1 and int(choice) < 7):
                     if(int(choice) == 1):
-                        y=0
-                        while(y < self.GENCOUNT):
+                        for y in range(self.GENCOUNT):
                             print self.run()
-                            y = y + 1
                     if(int(choice) == 2):
                         newgencount = input("How many passwords do you wish to generate(current="+str(self.GENCOUNT)+")?: ")
                         if(newgencount > 0):
