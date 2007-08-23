@@ -140,29 +140,21 @@ class pswrdgen:
         self.wordnetlist = open(self.NOUNFILE, 'rU').readlines()
         
         #Delete the first 212 because they are not words
-        delcount = 0
-        while (delcount < 213):
-            del self.wordnetlist[0]
-            delcount = delcount + 1
+        self.wordnetlist = self.wordnetlist[213:]
 
         #VALIDATE WORD...
         validword = False
         while (validword == False):
             #Choose a random line/word
-            curline=""
             curline = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
             
             #Make sure it is just one word
-            curword = ""
             curword = curline.split(" ")[0]
             
             #if there is no '_' found, then look for other problems with the selected word
             if(curword.find('_') == -1):
                 #Make sure it is not below MINLENGTH AND is not above MAXLENGTH
-                if((len(curword) >= self.MINLENGTH) and (len(curword) <= self.MINLENGTH)):
-                    validword = True
-                else:
-                    validword = False
+                validword = (len(curword) >= self.MINLENGTH) and (len(curword) <= self.MINLENGTH)
             else:
                 validword = False
         
@@ -192,13 +184,11 @@ class pswrdgen:
                 x = x - 1
             
         #Perform the transfoms...
-        x=0
-        while (x < wordlength):
+        for x in range(wordlength):
             if(x in poslist):
                 password +=  wordcharlist[x].upper()
             else:
                 password +=  wordcharlist[x]
-            x = x + 1
             
         return password
 
