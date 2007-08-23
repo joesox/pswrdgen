@@ -32,7 +32,7 @@ class pswrdgen:
         print "*******************************"
         
         menu_on = True
-        while(menu_on == True):
+        while menu_on:
             print "*******************************"
             print "* Choose one of the below:    *"
             print "* 1) Generate password(s)     *"
@@ -43,7 +43,7 @@ class pswrdgen:
             print "* 6) Exit                     *"
             print "*******************************"
             choice = raw_input("> ")
-            if(choice.isdigit() == True):
+            if choice.isdigit():
                 if(int(choice) >= 1 and int(choice) < 7):
                     if(int(choice) == 1):
                         for y in range(self.GENCOUNT):
@@ -56,7 +56,7 @@ class pswrdgen:
                         mingood = False
                         while(mingood == False):
                             userinput = raw_input("What is the minimum length of your password(default="+str(self.MINLENGTH)+"(must be greater than 2))?: ")
-                            if(userinput.isdigit() == True):
+                            if userinput.isdigit():
                                 if(int(userinput) <= 2):
                                     mingood = False
                                 else:
@@ -91,9 +91,9 @@ class pswrdgen:
     def changedefaults(self):
         userinput = ""
         mingood = False
-        while(mingood == False):
+        while not mingood:
             userinput = raw_input("What is the minimum length of your password(default="+str(self.MINLENGTH)+"(must be greater than 2))?: ")
-            if(userinput.isdigit() == True):
+            if userinput.isdigit():
                 if(int(userinput) <= 2):
                     mingood = False
                 else:
@@ -101,9 +101,9 @@ class pswrdgen:
                     mingood = True
 
         maxgood = False
-        while(maxgood == False):            
+        while maxgood:            
             userinput = raw_input("What is the maximum length of your password(default="+str(self.MAXLENGTH)+"(must be greater than 5))?: ")
-            if(userinput.isdigit() == True):
+            if userinput.isdigit():
                 if(int(userinput) <= 5):
                     maxgood = False
                 elif(int(userinput) < self.MINLENGTH):
@@ -144,7 +144,7 @@ class pswrdgen:
 
         #VALIDATE WORD...
         validword = False
-        while (validword == False):
+        while not validword:
             #Choose a random line/word
             curline = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
             
