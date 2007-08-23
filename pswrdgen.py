@@ -19,6 +19,14 @@ class pswrdgen:
         self.GENCOUNT = None
         self.do_setup()
 
+    def change_min(self):
+        msg = "What is the minimum length of your password(default=%i(must be greater than 2))?: "
+        while True:
+            userinput = raw_input(msg%self.MINLENGTH)
+            if userinput.isdigit() and not int(userinput) <= 2:
+                self.MINLENGTH = int(userinput)
+                break
+    
     """Main Menu loop"""
     def menu(self):
         print "*******************************"
@@ -53,15 +61,7 @@ class pswrdgen:
                         if(newgencount > 0):
                             self.GENCOUNT = newgencount
                     elif(int(choice) == 3):
-                        mingood = False
-                        while(mingood == False):
-                            userinput = raw_input("What is the minimum length of your password(default="+str(self.MINLENGTH)+"(must be greater than 2))?: ")
-                            if userinput.isdigit():
-                                if(int(userinput) <= 2):
-                                    mingood = False
-                                else:
-                                    self.MINLENGTH = int(userinput)
-                                    mingood = True
+                        self.change_min()
                     elif(int(choice) == 4):
                         self.changedefaults()
                     elif(int(choice) == 5):
@@ -90,19 +90,10 @@ class pswrdgen:
         
     """Change the configuration or except the default configuration."""
     def changedefaults(self):
-        userinput = ""
-        mingood = False
-        while not mingood:
-            userinput = raw_input("What is the minimum length of your password(default="+str(self.MINLENGTH)+"(must be greater than 2))?: ")
-            if userinput.isdigit():
-                if(int(userinput) <= 2):
-                    mingood = False
-                else:
-                    self.MINLENGTH = int(userinput)
-                    mingood = True
+        self.change_min()
 
         maxgood = False
-        while maxgood:            
+        while not maxgood:            
             userinput = raw_input("What is the maximum length of your password(default="+str(self.MAXLENGTH)+"(must be greater than 5))?: ")
             if userinput.isdigit():
                 if(int(userinput) <= 5):
@@ -121,6 +112,7 @@ class pswrdgen:
             self.CAPLENGTH = int(userinput)
             
         userinput = input("Type in your swap rules dictionary(default="+str(self.SWAPS)+")?: ")
+	print userinput
         self.SWAPS = dict(userinput)
 
         print "DEFAULTS CHANGED TO:"
