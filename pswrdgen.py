@@ -48,11 +48,11 @@ class pswrdgen:
                     if(int(choice) == 1):
                         for y in range(self.GENCOUNT):
                             print self.run()
-                    if(int(choice) == 2):
+                    elif(int(choice) == 2):
                         newgencount = input("How many passwords do you wish to generate(current="+str(self.GENCOUNT)+")?: ")
                         if(newgencount > 0):
                             self.GENCOUNT = newgencount
-                    if(int(choice) == 3):
+                    elif(int(choice) == 3):
                         mingood = False
                         while(mingood == False):
                             userinput = raw_input("What is the minimum length of your password(default="+str(self.MINLENGTH)+"(must be greater than 2))?: ")
@@ -62,11 +62,11 @@ class pswrdgen:
                                 else:
                                     self.MINLENGTH = int(userinput)
                                     mingood = True
-                    if(int(choice) == 4):
+                    elif(int(choice) == 4):
                         self.changedefaults()
-                    if(int(choice) == 5):
+                    elif(int(choice) == 5):
                         self.printdefaults()
-                    if(int(choice) == 6):
+                    elif(int(choice) == 6):
                         menu_on = False
             else:
                 #if a user types 'exit' try to breakout of menu loop
@@ -81,6 +81,7 @@ class pswrdgen:
     """
     def do_setup(self):
         self.NOUNFILE = "C:\\Program Files\\WordNet\\2.1\\dict\\index.noun" #WordNet Noun list to read
+        # self.NOUNFILE = "/usr/local/WordNet-3.0/dict/index.noun"
         self.SWAPS = {'h':4, 's':5}
         self.MINLENGTH = 8
         self.MAXLENGTH = 16
@@ -135,7 +136,6 @@ class pswrdgen:
 
     """Generate one password"""
     def run(self):
-        password = ""
         #Read the noun list
         self.wordnetlist = open(self.NOUNFILE, 'rU').readlines()
         
@@ -168,9 +168,7 @@ class pswrdgen:
                     curword = curword.replace(k,str(v))
         
         #Create a list of the characters in the word
-        wordcharlist = []
-        for c in curword:
-            wordcharlist.append(c)
+        wordcharlist = list(curword)
             
         #Figure out what char positions to convert to uppercase
         poslist = []
@@ -184,13 +182,10 @@ class pswrdgen:
                 x = x - 1
             
         #Perform the transfoms...
-        for x in range(wordlength):
-            if(x in poslist):
-                password +=  wordcharlist[x].upper()
-            else:
-                password +=  wordcharlist[x]
+        for x in poslist:
+            wordcharlist[x] = wordcharlist[x].upper()
             
-        return password
+        return ''.join(wordcharlist)
 
 
 def test():
