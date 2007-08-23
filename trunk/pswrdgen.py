@@ -39,8 +39,7 @@ class pswrdgen:
         print "* and character swapping.     *"
         print "*******************************"
         
-        menu_on = True
-        while menu_on:
+        while True:
             print "*******************************"
             print "* Choose one of the below:    *"
             print "* 1) Generate password(s)     *"
@@ -67,13 +66,11 @@ class pswrdgen:
                     elif(int(choice) == 5):
                         self.printdefaults()
                     elif(int(choice) == 6):
-                        menu_on = False
+                        break
             else:
                 #if a user types 'exit' try to breakout of menu loop
                 if(str(choice).lower() == "exit"):
-                    menu_on = False
-                else:
-                    menu_on = True
+                    break
 
     """
     Assign the default values to the instance before calling run()
@@ -92,17 +89,13 @@ class pswrdgen:
     def changedefaults(self):
         self.change_min()
         
-        maxmsg = "What is the maximum length of your password(default=%i(must be greater than 5))?: "
+        maxmsg = "What is the maximum length of your password(default=%i(must be greater than %i))?: "
+        low = max(5, self.MINLENGTH)
         while true:            
-            userinput = raw_input(maxmsg%self.MAXLENGTH)
-            if userinput.isdigit():
-                if(int(userinput) <= 5):
-                    pass
-                elif(int(userinput) < self.MINLENGTH):
-                    print "MAXLENGTH can not be smaller than the MINLENGTH"
-                else:
-                    self.MAXLENGTH = int(userinput)
-                    break
+            userinput = raw_input(maxmsg%(self.MAXLENGTH, low))
+            if userinput.isdigit() and int(userinput) > low:
+                self.MAXLENGTH = int(userinput)
+                break
             
         userinput = raw_input("How many capital letters in your password(default=%i)?: "%self.CAPLENGTH)
         self.CAPLENGTH = int(userinput)
@@ -133,8 +126,7 @@ class pswrdgen:
         self.wordnetlist = self.wordnetlist[213:]
 
         #VALIDATE WORD...
-        validword = False
-        while not validword:
+        while True:
             #Choose a random line/word
             curline = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
             
@@ -142,11 +134,10 @@ class pswrdgen:
             curword = curline.split(" ")[0]
             
             #if there is no '_' found, then look for other problems with the selected word
-            if(curword.find('_') == -1):
+            if('_' not in curword):
                 #Make sure it is not below MINLENGTH AND is not above MAXLENGTH
-                validword = (len(curword) >= self.MINLENGTH) and (len(curword) <= self.MINLENGTH)
-            else:
-                validword = False
+                if (self.MINLENGTH <= len(curword) <= self.MINLENGTH):
+                    break
         
         #Prep for Capitalize random characters in the word...
         wordlength = len(curword)
