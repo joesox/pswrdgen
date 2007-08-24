@@ -88,12 +88,10 @@ class pswrdgen:
         self.change_min()
         
         maxmsg = "What is the maximum length of your password(default=%i(must be greater than %i))?: "
-        low = max(5, self.MINLENGTH)
-        while true:            
-            userinput = raw_input(maxmsg%(self.MAXLENGTH, low))
-            if userinput.isdigit() and int(userinput) > low:
-                self.MAXLENGTH = int(userinput)
-                break
+        low = max(5, self.MINLENGTH)         
+        userinput = raw_input(maxmsg%(self.MAXLENGTH, low))
+        if userinput.isdigit() and int(userinput) > low:
+            self.MAXLENGTH = int(userinput)
             
         userinput = raw_input("How many capital letters in your password(default=%i)?: "%self.CAPLENGTH)
         self.CAPLENGTH = int(userinput)
