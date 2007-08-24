@@ -23,10 +23,11 @@ class pswrdgen:
 
     def change_min(self):
         msg = "What is the minimum length of your password(default=%i(must be greater than 2))?: "
-        userinput = raw_input(msg%self.MINLENGTH) #NOTE:Using True breaks changedefaults() 
-        if userinput.isdigit() and not int(userinput) <= 2:
-            self.MINLENGTH = int(userinput)
-    
+        while True:
+            userinput = raw_input(msg%self.MINLENGTH)
+            if userinput.isdigit() and 2 < int(userinput):
+                self.MINLENGTH = int(userinput)
+                break
     
     def menu(self):
         """Main Menu loop"""
@@ -53,7 +54,7 @@ class pswrdgen:
             print "*******************************"
             choice = raw_input("> ")
             if choice.isdigit():
-                if(int(choice) >= 1 and int(choice) < 7):
+                if(1 <= int(choice) < 7):
                     if(int(choice) == 1):
                         for y in range(self.GENCOUNT):
                             print self.run()
@@ -92,10 +93,12 @@ class pswrdgen:
         self.change_min()
         
         maxmsg = "What is the maximum length of your password(default=%i(must be greater than %i))?: "
-        low = max(5, self.MINLENGTH)         
-        userinput = raw_input(maxmsg%(self.MAXLENGTH, low))
-        if userinput.isdigit() and int(userinput) > low:
-            self.MAXLENGTH = int(userinput)
+        low = max(5, self.MINLENGTH)
+        while True:            
+            userinput = raw_input(maxmsg%(self.MAXLENGTH, low))
+            if userinput.isdigit() and int(userinput) > low:
+                self.MAXLENGTH = int(userinput)
+                break
             
         userinput = raw_input("How many capital letters in your password(default=%i)?: "%self.CAPLENGTH)
         self.CAPLENGTH = int(userinput)
@@ -117,7 +120,6 @@ class pswrdgen:
         print "CAPLENGTH: " + str(self.CAPLENGTH)
         print "SWAPS: " + str(self.SWAPS) 
 
-    
     def run(self):
         """Generate one password"""
         #Read the noun list
@@ -137,7 +139,7 @@ class pswrdgen:
             #if there is no '_' found, then look for other problems with the selected word
             if('_' not in curword):
                 #Make sure it is not below MINLENGTH AND is not above MAXLENGTH
-                if (self.MINLENGTH <= len(curword) <= self.MINLENGTH):
+                if (self.MINLENGTH <= len(curword) <= self.MAXLENGTH):
                     break
         
         #Prep for Capitalize random characters in the word...
