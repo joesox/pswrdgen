@@ -21,23 +21,21 @@ class pswrdgen:
 
     def change_min(self):
         msg = "What is the minimum length of your password(default=%i(must be greater than 2))?: "
-        while True:
-            userinput = raw_input(msg%self.MINLENGTH)
-            if userinput.isdigit() and not int(userinput) <= 2:
-                self.MINLENGTH = int(userinput)
-                break
+        userinput = raw_input(msg%self.MINLENGTH) #NOTE:Using True breaks changedefaults() 
+        if userinput.isdigit() and not int(userinput) <= 2:
+            self.MINLENGTH = int(userinput)
     
     """Main Menu loop"""
     def menu(self):
-        print "*******************************"
-        print "* pswrdgen - by JPSIII        *"
-        print "* http://joeswammi.com/python *"
-        print "* --------------------------- *"
-        print "* Semantic Password generator *"
-        print "* that uses WordNet 2.1,      *"
-        print "* random capitalization,      *"
-        print "* and character swapping.     *"
-        print "*******************************"
+        print "*************************************"
+        print "*              pswrdgen             *"
+        print "* http://code.google.com/p/pswrdgen *"
+        print "* --------------------------------- *"
+        print "* Semantic Password generator that  *"
+        print "* uses WordNet 2.1,random           *"
+        print "* capitalization,and character      *"
+        print "* swapping.                         *"
+        print "*************************************"
         
         while True:
             print "*******************************"
