@@ -5,10 +5,12 @@ __author__ = "Joseph P. Socoloski III"
 __url__ = 'www.joeswammi.com/python/docs/pswrdgen'
 __doc__ = 'Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping. Needs WordNet 2.1'
 
-"""
-Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
-"""
+
 class pswrdgen:
+    """
+    Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
+    """
+    
     def init__(self):
         self.NOUNFILE = "" #WordNet Noun list to read
         self.wordnetlist =[]
@@ -25,8 +27,10 @@ class pswrdgen:
         if userinput.isdigit() and not int(userinput) <= 2:
             self.MINLENGTH = int(userinput)
     
-    """Main Menu loop"""
+    
     def menu(self):
+        """Main Menu loop"""
+
         print "*************************************"
         print "*              pswrdgen             *"
         print "* http://code.google.com/p/pswrdgen *"
@@ -70,11 +74,11 @@ class pswrdgen:
                 if(str(choice).lower() == "exit"):
                     break
 
-    """
-    Assign the default values to the instance before calling run()
-    You may manually change the default configuration here.
-    """
     def do_setup(self):
+        """
+        Assign the default values to the instance before calling run()
+        You may manually change the default configuration here.
+        """
         self.NOUNFILE = "C:\\Program Files\\WordNet\\2.1\\dict\\index.noun" #WordNet Noun list to read
         # self.NOUNFILE = "/usr/local/WordNet-3.0/dict/index.noun"
         self.SWAPS = {'h':4, 's':5}
@@ -83,8 +87,8 @@ class pswrdgen:
         self.CAPLENGTH = 2
         self.GENCOUNT = 10
         
-    """Change the configuration or except the default configuration."""
     def changedefaults(self):
+        """Change the configuration or except the default configuration."""
         self.change_min()
         
         maxmsg = "What is the maximum length of your password(default=%i(must be greater than %i))?: "
@@ -105,16 +109,17 @@ class pswrdgen:
         print "DEFAULTS CHANGED TO:"
         self.printdefaults()
 
-    """Print the configuration defaults to the console"""
     def printdefaults(self):
+        """Print the configuration defaults to the console"""
         print "NOUNFILE: " + self.NOUNFILE
         print "MINLENGTH: " + str(self.MINLENGTH)
         print "MAXLENGTH: " + str(self.MAXLENGTH)
         print "CAPLENGTH: " + str(self.CAPLENGTH)
         print "SWAPS: " + str(self.SWAPS) 
 
-    """Generate one password"""
+    
     def run(self):
+        """Generate one password"""
         #Read the noun list
         self.wordnetlist = open(self.NOUNFILE, 'rU').readlines()
         
