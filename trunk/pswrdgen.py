@@ -156,14 +156,10 @@ class pswrdgen:
             
         #Figure out what char positions to convert to uppercase
         poslist = []
-        x=0
-        while (x < self.CAPLENGTH and x >= 0):
+        while len(poslist) < self.CAPLENGTH:
             randnum = random.randrange(0, wordlength)
-            if((poslist.count(randnum) == 0) and (wordcharlist[randnum].isalpha)):
+            if randnum not in poslist and wordcharlist[randnum].isalpha():
                 poslist.append(randnum)
-                x = x + 1
-            else:
-                x = x - 1
             
         #Perform the transfoms...
         for x in poslist:
