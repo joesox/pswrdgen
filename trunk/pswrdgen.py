@@ -6,6 +6,19 @@ __url__ = 'www.joeswammi.com/python/docs/pswrdgen'
 __doc__ = 'Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping. Needs WordNet 2.1'
 
 
+def getint(msg, default, low):
+    while True:
+        userinput = raw_input(msg+" (default=%i, minimum=%i) ?: "%(default, low))
+        if userinput == '':
+            return default
+        try:
+            res = int(userinput)
+            if low <= res:
+                return res
+        except Exception, e:
+            print e
+
+
 class pswrdgen:
     """
     Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
@@ -21,14 +34,6 @@ class pswrdgen:
         self.GENCOUNT = None
         self.do_setup()
 
-    def change_min(self):
-        msg = "What is the minimum length of your password(default=%i(must be greater than 2))?: "
-        while True:
-            userinput = raw_input(msg%self.MINLENGTH)
-            if userinput.isdigit() and 2 < int(userinput):
-                self.MINLENGTH = int(userinput)
-                break
-    
     def menu(self):
         """Main Menu loop"""
 
@@ -59,11 +64,9 @@ class pswrdgen:
                         for y in range(self.GENCOUNT):
                             print self.run()
                     elif(int(choice) == 2):
-                        newgencount = input("How many passwords do you wish to generate(current="+str(self.GENCOUNT)+")?: ")
-                        if(newgencount > 0):
-                            self.GENCOUNT = newgencount
+                        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
                     elif(int(choice) == 3):
-                        self.change_min()
+                        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
                     elif(int(choice) == 4):
                         self.changedefaults()
                     elif(int(choice) == 5):
@@ -87,26 +90,14 @@ class pswrdgen:
         self.MAXLENGTH = 16
         self.CAPLENGTH = 2
         self.GENCOUNT = 10
-        
+    
     def changedefaults(self):
         """Change the configuration or except the default configuration."""
-        self.change_min()
-        
-        maxmsg = "What is the maximum length of your password(default=%i(must be greater than %i))?: "
-        low = max(5, self.MINLENGTH)
-        while True:            
-            userinput = raw_input(maxmsg%(self.MAXLENGTH, low))
-            if userinput.isdigit() and int(userinput) > low:
-                self.MAXLENGTH = int(userinput)
-                break
+        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
+        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
+        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
             
-        userinput = raw_input("How many capital letters in your password(default=%i)?: "%self.CAPLENGTH)
-        self.CAPLENGTH = int(userinput)
-        if(self.CAPLENGTH <=0 or userinput.strip() == ""):
-            userinput = raw_input("How many capital letters in your password(must be greater than 0)?: ")
-            self.CAPLENGTH = int(userinput)
-            
-        userinput = input("Type in your swap rules dictionary(default="+str(self.SWAPS)+")?: ")
+        userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
         self.SWAPS = dict(userinput)
 
         print "DEFAULTS CHANGED TO:"
