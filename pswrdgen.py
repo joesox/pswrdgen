@@ -83,8 +83,8 @@ class pswrdgen:
         Assign the default values to the instance before calling run()
         You may manually change the default configuration here.
         """
-        self.NOUNFILE = "C:\\Program Files\\WordNet\\2.1\\dict\\index.noun" #WordNet Noun list to read
-        # self.NOUNFILE = "/usr/local/WordNet-3.0/dict/index.noun"
+        self.setnounfile("C:\\Program Files\\WordNet\\2.1\\dict\\index.noun") #WordNet Noun list to read
+        # self.setnounfile('/usr/local/WordNet-3.0/dict/index.noun')
         self.SWAPS = {'h':4, 's':5}
         self.MINLENGTH = 8
         self.MAXLENGTH = 16
@@ -110,28 +110,23 @@ class pswrdgen:
         print "MAXLENGTH: " + str(self.MAXLENGTH)
         print "CAPLENGTH: " + str(self.CAPLENGTH)
         print "SWAPS: " + str(self.SWAPS) 
+    
+    def setnounfile(self, source):
+        self.NOUNFILE = source
+        
+        #Read the noun list ignoring the first 212 as they are not words
+        wordlist = open(source, 'rU').readlines()[213:]
+        
+        #If there are multiple words on a line take the first, ignore hyphenated words
+        self.wordnetlist = [s.split(" ")[0] for s in wordlist if '-' not in s]
 
     def run(self):
         """Generate one password"""
-        #Read the noun list
-        self.wordnetlist = open(self.NOUNFILE, 'rU').readlines()
-        
-        #Delete the first 212 because they are not words
-        self.wordnetlist = self.wordnetlist[213:]
-
-        #VALIDATE WORD...
+        # Pick a random word of valid length
         while True:
-            #Choose a random line/word
-            curline = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
-            
-            #Make sure it is just one word
-            curword = curline.split(" ")[0]
-            
-            #if there is no '_' found, then look for other problems with the selected word
-            if('_' not in curword):
-                #Make sure it is not below MINLENGTH AND is not above MAXLENGTH
-                if (self.MINLENGTH <= len(curword) <= self.MAXLENGTH):
-                    break
+            curword = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
+            if (self.MINLENGTH <= len(curword) <= self.MAXLENGTH):
+                break
         
         #Prep for Capitalize random characters in the word...
         wordlength = len(curword)
