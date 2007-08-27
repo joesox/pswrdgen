@@ -114,11 +114,14 @@ class pswrdgen:
     def setnounfile(self, source):
         self.NOUNFILE = source
         
-        #Read the noun list ignoring the first 212 as they are not words
-        wordlist = open(source, 'rU').readlines()[213:]
+        data = open(source, 'rU')
+        #discard lines until the start of usable words 
+        for s in data:
+            if s[0] == 'a':
+                break
         
-        #If there are multiple words on a line take the first, ignore hyphenated words
-        self.wordnetlist = [s.split(" ")[0] for s in wordlist if '-' not in s]
+        #If there are multiple words on a line take the first, ignore words split by '_', ', or '.'
+        self.wordnetlist = [s.split(" ")[0] for s in data if '_' not in s if '.' not in s if "'" not in s]
 
     def run(self):
         """Generate one password"""
