@@ -15,8 +15,10 @@ def getint(msg, default, low):
             res = int(userinput)
             if low <= res:
                 return res
+        except ValueError:
+            pass # User entered nether an integer or an empty line
         except Exception, e:
-            print e
+            print type(e), e
 
 
 class pswrdgen:
@@ -93,13 +95,20 @@ class pswrdgen:
     
     def changedefaults(self):
         """Change the configuration or except the default configuration."""
+        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
         self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
         self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
         self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
-            
-        userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
-        self.SWAPS = dict(userinput)
-
+        
+        try:
+            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
+            if userinput:
+                self.SWAPS = dict(userinput)
+        except SyntaxError:
+            pass # Ignore invalid user input
+        except Exception, e:
+            print type(e), e
+        
         print "DEFAULTS CHANGED TO:"
         self.printdefaults()
 
