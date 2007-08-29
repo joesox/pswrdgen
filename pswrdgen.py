@@ -62,27 +62,27 @@ class pswrdgen:
         while True:
             box(26, 'l', 'Choose one of the below:', '1) Generate password(s)',  '2) Change generate count',
                 '3) Change password length', '4) Change all defaults' , '5) Display defaults', '6) Exit')
-            choice = raw_input("> ")
-            if choice.isdigit():
-                if(1 <= int(choice) < 7):
-                    if(int(choice) == 1):
-                        for y in range(self.GENCOUNT):
-                            print self.run()
-                    elif(int(choice) == 2):
-                        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
-                    elif(int(choice) == 3):
-                        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-                    elif(int(choice) == 4):
-                        self.changedefaults()
-                    elif(int(choice) == 5):
-                        self.printdefaults()
-                    elif(int(choice) == 6):
-                        break
-            else:
-                #if a user types 'exit' try to breakout of menu loop
-                if(str(choice).lower() == "exit"):
+            entered = raw_input("> ")
+            try:
+                choice = int(entered)
+            except:
+                if(str(entered).lower() == "exit"):
                     break
-
+            else:
+                if choice == 1:
+                    for y in range(self.GENCOUNT):
+                        print self.run()
+                elif choice == 2:
+                    self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
+                elif choice == 3:
+                    self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
+                elif choice == 4:
+                    self.changedefaults()
+                elif choice == 5:
+                    self.printdefaults()
+                elif choice == 6:
+                    break
+                
     def do_setup(self):
         """
         Assign the default values to the instance before calling run()
@@ -136,33 +136,25 @@ class pswrdgen:
     def run(self):
         """Generate one password"""
         # Pick a random word of valid length
-        while True:
+        curword = ''
+        while not (curword and self.MINLENGTH <= wordlength <= self.MAXLENGTH):
             curword = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
-            if (self.MINLENGTH <= len(curword) <= self.MAXLENGTH):
-                break
-        
-        #Prep for Capitalize random characters in the word...
-        wordlength = len(curword)
+            wordlength = len(curword)
         
         #DO replacement swaps here
-        for c in curword:
-            for k,v in self.SWAPS.iteritems():
-                if(c == k):
-                    curword = curword.replace(k,str(v))
+        for k, v in self.SWAPS.iteritems():
+            curword = curword.replace(k, str(v))
         
         #Create a list of the characters in the word
         wordcharlist = list(curword)
             
-        #Figure out what char positions to convert to uppercase
+        # Capitalise exactly self.CAPLENGTH letters
         poslist = []
         while len(poslist) < self.CAPLENGTH:
             randnum = random.randrange(0, wordlength)
             if randnum not in poslist and wordcharlist[randnum].isalpha():
                 poslist.append(randnum)
-            
-        #Perform the transfoms...
-        for x in poslist:
-            wordcharlist[x] = wordcharlist[x].upper()
+                wordcharlist[randnum] = wordcharlist[randnum].upper()
             
         return ''.join(wordcharlist)
 
