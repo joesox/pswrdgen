@@ -17,8 +17,28 @@ def getint(msg, default, low):
                 return res
         except ValueError:
             pass # User entered nether an integer or an empty line
-        except Exception, e:
-            print type(e), e
+
+
+def printline(length, div, line):
+    pad = max(0, (length-len(line))/div)
+    print "*%*s%-*s *" %(pad+1, ' ', length-pad, line)
+
+
+def box(length, justify, *lines):
+    div = {'c':2, 'r':1}.get(justify, 100)
+    print "*"*(length+4)
+    for line in lines:
+        if len(line) <= length or ' ' not in line:
+            printline(length, div, line)
+        else: 
+            store = ''
+            for word in line.split():
+                if len(store)+len(word) > length:
+                    printline(length, div, store)
+                    store = ''
+                store = store+' '+word
+            printline(length, div, store)
+    print "*"*(length+4)
 
 
 class pswrdgen:
@@ -38,27 +58,10 @@ class pswrdgen:
 
     def menu(self):
         """Main Menu loop"""
-
-        print "*************************************"
-        print "*              pswrdgen             *"
-        print "* http://code.google.com/p/pswrdgen *"
-        print "* --------------------------------- *"
-        print "* Semantic Password generator that  *"
-        print "* uses WordNet 2.1,random           *"
-        print "* capitalization,and character      *"
-        print "* swapping.                         *"
-        print "*************************************"
-        
+        box(40, 'c', 'pswrdgen', __version__, __url__, __author__, '-'*40, __doc__)
         while True:
-            print "*******************************"
-            print "* Choose one of the below:    *"
-            print "* 1) Generate password(s)     *"
-            print "* 2) Change generate count    *"
-            print "* 3) Change password length   *"
-            print "* 4) Change all defaults      *"
-            print "* 5) Display defaults         *"
-            print "* 6) Exit                     *"
-            print "*******************************"
+            box(26, 'l', 'Choose one of the below:', '1) Generate password(s)',  '2) Change generate count',
+                '3) Change password length', '4) Change all defaults' , '5) Display defaults', '6) Exit')
             choice = raw_input("> ")
             if choice.isdigit():
                 if(1 <= int(choice) < 7):
@@ -106,9 +109,7 @@ class pswrdgen:
                 self.SWAPS = dict(userinput)
         except SyntaxError:
             pass # Ignore invalid user input
-        except Exception, e:
-            print type(e), e
-        
+                
         print "DEFAULTS CHANGED TO:"
         self.printdefaults()
 
