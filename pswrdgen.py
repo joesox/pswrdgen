@@ -1,8 +1,8 @@
 import os, sys, random
 sys.path.append("C:\\Program Files\\WordNet\\2.1\\dict")
-__version__ = '0.1.1'
+__version__ = '0.1.2'
 __author__ = "Joseph P. Socoloski III"
-__url__ = 'www.joeswammi.com/python/docs/pswrdgen'
+__url__ = 'http://code.google.com/p/pswrdgen/'
 __doc__ = 'Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping. Needs WordNet 2.1'
 
 
@@ -58,7 +58,7 @@ class pswrdgen:
 
     def menu(self):
         """Main Menu loop"""
-        box(40, 'c', 'pswrdgen', __version__, __url__, __author__, '-'*40, __doc__)
+        box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
         while True:
             box(26, 'l', 'Choose one of the below:', '1) Generate password(s)',  '2) Change generate count',
                 '3) Change password length', '4) Change all defaults' , '5) Display defaults', '6) Exit')
