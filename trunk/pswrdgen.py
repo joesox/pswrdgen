@@ -1,9 +1,8 @@
 import os, sys, random
-sys.path.append("C:\\Program Files\\WordNet\\2.1\\dict")
-__version__ = '0.1.2'
+__version__ = '0.2.0'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://code.google.com/p/pswrdgen/'
-__doc__ = 'Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping. Needs WordNet 2.1'
+__doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping. Prerequisite:WordNet'
 
 
 def getint(msg, default, low):
@@ -85,11 +84,30 @@ class pswrdgen:
                 
     def do_setup(self):
         """
+        Decides what the operating system is and chooses the install directory of WordNet
         Assign the default values to the instance before calling run()
         You may manually change the default configuration here.
+        NOTE: The platform handling still needs testing from non-Windows users 8/30/07
         """
-        self.setnounfile("C:\\Program Files\\WordNet\\2.1\\dict\\index.noun") #WordNet Noun list to read
-        # self.setnounfile('/usr/local/WordNet-3.0/dict/index.noun')
+        # Platform support for Windows
+        if sys.platform[:3] == 'win':
+            FS_ROOT = 'C:\\Program Files'
+            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
+            sys.path.append(WORDNETPATH)
+            #WordNet Noun list to read
+            self.setnounfile("C:\\Program Files\\WordNet\\2.1\\dict\\index.noun") 
+        # Platform support for MacOS /usr/local/WordNet-3.0/dict/
+        elif sys.platform == 'darwin':
+            FS_ROOT = '/'
+            WORDNETPATH=os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-3.0', 'dict' )
+            sys.path.append(WORDNETPATH)
+            self.setnounfile('/usr/local/WordNet-3.0/dict/index.noun')
+        else:
+            FS_ROOT = '/'
+            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
+            sys.path.append(WORDNETPATH)
+
+        #Manually change your default do_setup settings HERE...
         self.SWAPS = {'h':4, 's':5}
         self.MINLENGTH = 8
         self.MAXLENGTH = 16
