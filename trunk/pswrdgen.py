@@ -1,5 +1,5 @@
 import os, sys, random
-__version__ = '0.2.0'
+__version__ = '0.2.1'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://code.google.com/p/pswrdgen/'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping. Prerequisite:WordNet'
@@ -106,6 +106,7 @@ class pswrdgen:
             FS_ROOT = '/'
             WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
             sys.path.append(WORDNETPATH)
+            self.setnounfile('/usr/local/WordNet-3.0/dict/index.noun')
 
         #Manually change your default do_setup settings HERE...
         self.SWAPS = {'h':4, 's':5}
