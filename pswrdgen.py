@@ -31,11 +31,11 @@ def box(length, justify, *lines):
             printline(length, div, line)
         else: 
             store = ''
-            for word in line.split():
-                if len(store)+len(word) > length:
+            for word in (s.strip() for s in line.split()):
+                if len(store)+len(word)+1 > length:
                     printline(length, div, store)
                     store = ''
-                store = store+' '+word
+                store = store+' '+word if store or word
             printline(length, div, store)
     print "*"*(length+4)
 
