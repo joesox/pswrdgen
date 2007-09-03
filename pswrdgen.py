@@ -1,5 +1,5 @@
 import os, sys, random
-__version__ = '0.2.1'
+__version__ = '0.2.2'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://code.google.com/p/pswrdgen/'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping. Prerequisite:WordNet'
@@ -91,6 +91,10 @@ class pswrdgen:
         """
         # Platform support for Windows
         if sys.platform[:3] == 'win':
+            FS_ROOT = 'C:\\Program Files'
+            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
+        # Platform support for IronPython. We are assuming here that we will not run into many 'cli' platforms
+        elif sys.platform == 'cli':
             FS_ROOT = 'C:\\Program Files'
             WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
         # Platform support for MacOS /usr/local/WordNet-3.0/dict/
