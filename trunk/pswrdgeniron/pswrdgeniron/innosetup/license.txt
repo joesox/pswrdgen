@@ -1,0 +1,19 @@
+////////////////////////////////////////////////////////////////////////////
+// pswrdgeniron v0.2.3
+// Semantic Password generator that uses WordNet, random capitalization,
+// and character swapping. Prerequisite:WordNet
+// by Joseph P. Socoloski III
+// Copyright 2007. All Rights Reserved.
+// http://pswrdgen..googlecode.com
+// 
+//LICENSE:
+//BY DOWNLOADING AND USING, YOU AGREE TO THE FOLLOWING TERMS:
+//If it is your intent to use this software for non-commercial purposes, 
+//such as in academic research, this software is free and is covered under 
+//the GNU GPL License, given here: <http://www.gnu.org/licenses/gpl.txt> 
+////////////////////////////////////////////////////////////////////////////
+//IronPython is licensed, copyrighted, and a registered trademark by
+// Microsoft Corporation. http://www.codeplex.com/IronPython
+//WordNet is licensed, copyrighted, and a registered trademark by 
+// Princeton University. http://wordnet.princeton.edu/
+
