@@ -45,7 +45,7 @@ class pswrdgen:
     Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
     """
     
-    def init__(self):
+    def __init__(self):
         self.NOUNFILE = "" #WordNet Noun list to read
         self.wordnetlist =[]
         self.SWAPS = {}
@@ -176,7 +176,6 @@ class pswrdgen:
 
 def test():
     i = pswrdgen()
-    i.do_setup()
     i.menu() 
     
 if __name__ == '__main__':
