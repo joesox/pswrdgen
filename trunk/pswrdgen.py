@@ -1,5 +1,5 @@
 import os, sys, random
-__version__ = '0.2.3'
+__version__ = '0.2.4'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
