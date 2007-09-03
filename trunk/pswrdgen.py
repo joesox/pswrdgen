@@ -1,8 +1,8 @@
 import os, sys, random
-__version__ = '0.2.2'
+__version__ = '0.2.3'
 __author__ = "Joseph P. Socoloski III"
-__url__ = 'http://code.google.com/p/pswrdgen/'
-__doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping. Prerequisite:WordNet'
+__url__ = 'http://pswrdgen.googlecode.com'
+__doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
 
 
 def getint(msg, default, low):
