@@ -93,21 +93,17 @@ class pswrdgen:
         if sys.platform[:3] == 'win':
             FS_ROOT = 'C:\\Program Files'
             WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-            sys.path.append(WORDNETPATH)
-            #WordNet Noun list to read
-            self.setnounfile("C:\\Program Files\\WordNet\\2.1\\dict\\index.noun") 
         # Platform support for MacOS /usr/local/WordNet-3.0/dict/
         elif sys.platform == 'darwin':
             FS_ROOT = '/'
             WORDNETPATH=os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-3.0', 'dict' )
-            sys.path.append(WORDNETPATH)
-            self.setnounfile('/usr/local/WordNet-3.0/dict/index.noun')
         else:
             FS_ROOT = '/'
             WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-            sys.path.append(WORDNETPATH)
-            self.setnounfile('/usr/local/WordNet-3.0/dict/index.noun')
-
+        #WordNet Noun list to read
+        sys.path.append(WORDNETPATH)
+        self.setnounfile(os.path.join(WORDNETPATH, "index.noun"))
+        
         #Manually change your default do_setup settings HERE...
         self.SWAPS = {'h':4, 's':5}
         self.MINLENGTH = 8
