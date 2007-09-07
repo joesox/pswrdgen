@@ -1,5 +1,5 @@
 import os, sys, random
-__version__ = '0.2.5'
+__version__ = '0.2.6'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -166,14 +166,13 @@ class pswrdgen:
         for k, v in self.SWAPS.iteritems():
             curword = curword.replace(k, str(v))
         
-        # Capitalise exactly self.CAPLENGTH letters
-        poslist = []
+        # Capitalise self.CAPLENGTH or all letters
         wordcharlist = list(curword)
         capitalise = min(self.CAPLENGTH, sum(1 for c in wordcharlist if c.isalpha() and c.islower()))
-        while len(poslist) < capitalise:
+        while capitalise:
             randnum = random.randrange(0, wordlength)
-            if randnum not in poslist and wordcharlist[randnum].isalpha():
-                poslist.append(randnum)
+            if wordcharlist[randnum].isalpha() and wordcharlist[randnum].islower():
+                capitalise -= 1
                 wordcharlist[randnum] = wordcharlist[randnum].upper()
             
         return ''.join(wordcharlist)
