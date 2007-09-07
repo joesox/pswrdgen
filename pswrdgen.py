@@ -1,5 +1,5 @@
 import os, sys, random
-__version__ = '0.2.4'
+__version__ = '0.2.5'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -105,7 +105,6 @@ class pswrdgen:
             FS_ROOT = '/'
             WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
         #WordNet Noun list to read
-        sys.path.append(WORDNETPATH)
         self.setnounfile(os.path.join(WORDNETPATH, "index.noun"))
         
         #Manually change your default do_setup settings HERE...
@@ -143,7 +142,7 @@ class pswrdgen:
     def setnounfile(self, source):
         self.NOUNFILE = source
         
-        data = open(source, 'rU')
+        data = open(source, 'r')
         #discard lines until the start of usable words 
         for s in data:
             if s[0] == 'a':
@@ -151,12 +150,15 @@ class pswrdgen:
         
         #If there are multiple words on a line take the first, ignore words split by '_', ', or '.'
         self.wordnetlist = [s.split(" ")[0] for s in data if '_' not in s if '.' not in s if "'" not in s]
+        self.wordlengthcap = max(len(s) for s in self.wordnetlist)
 
     def run(self):
         """Generate one password"""
         # Pick a random word of valid length
         curword = ''
-        while not (curword and self.MINLENGTH <= wordlength <= self.MAXLENGTH):
+        maxlength = min(self.MAXLENGTH, self.wordlengthcap)
+        minlength = min(maxlength, self.MINLENGTH)
+        while not (curword and minlength <= wordlength <= maxlength):
             curword = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
             wordlength = len(curword)
         
@@ -164,12 +166,11 @@ class pswrdgen:
         for k, v in self.SWAPS.iteritems():
             curword = curword.replace(k, str(v))
         
-        #Create a list of the characters in the word
-        wordcharlist = list(curword)
-            
         # Capitalise exactly self.CAPLENGTH letters
         poslist = []
-        while len(poslist) < self.CAPLENGTH:
+        wordcharlist = list(curword)
+        capitalise = min(self.CAPLENGTH, sum(1 for c in wordcharlist if c.isalpha() and c.islower()))
+        while len(poslist) < capitalise:
             randnum = random.randrange(0, wordlength)
             if randnum not in poslist and wordcharlist[randnum].isalpha():
                 poslist.append(randnum)
