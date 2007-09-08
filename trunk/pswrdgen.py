@@ -1,5 +1,5 @@
 import os, sys, random
-__version__ = '0.2.6'
+__version__ = '0.2.7'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -33,11 +33,28 @@ def box(length, justify, *lines):
             store = ''
             for word in line.split():
                 if len(store)+len(word)+1 > length:
-                    printline(length, div, store)
+                    printline(length, div, store.strip())
                     store = ''
                 store = store+' '+word
             printline(length, div, store.strip())
     print "*"*(length+4)
+
+
+def run_menu(width, values, *options):
+    while True:
+        tmp = ['%i) %s'%(i+1, s[0]%values) for i, s in enumerate(options)]
+        box(width, 'l', 'Choose one of the below:', *tmp+['%i) exit'%(len(options)+1)])
+        entered = raw_input("> ")
+        try:
+            choice = int(entered)
+        except:
+            if(str(entered).lower() == "exit"):
+                break
+        else:
+            if choice == len(options)+1:
+                break
+            elif 0 < choice <= len(options):
+                options[choice-1][1]()
 
 
 class pswrdgen:
@@ -58,30 +75,37 @@ class pswrdgen:
     def menu(self):
         """Main Menu loop"""
         box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
-        while True:
-            box(26, 'l', 'Choose one of the below:', '1) Generate password(s)',  '2) Change generate count',
-                '3) Change password length', '4) Change all defaults' , '5) Display defaults', '6) Exit')
-            entered = raw_input("> ")
-            try:
-                choice = int(entered)
-            except:
-                if(str(entered).lower() == "exit"):
-                    break
-            else:
-                if choice == 1:
-                    for y in range(self.GENCOUNT):
-                        print self.run()
-                elif choice == 2:
-                    self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
-                elif choice == 3:
-                    self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-                elif choice == 4:
-                    self.changedefaults()
-                elif choice == 5:
-                    self.printdefaults()
-                elif choice == 6:
-                    break
+        run_menu(50, self.__dict__, 
+                ('Generate %(GENCOUNT)i password(s)', self._generate),
+                ('Change generate count (now %(GENCOUNT)i)', self._input_count),
+                ('Change password length (now %(MINLENGTH)i<=length<=%(MAXLENGTH)i)', self._input_length),
+                ('Change capitalisation count (now %(CAPLENGTH)i)', self._cap_count),
+                ('Change swap dictionary (now %(SWAPS)s)', self._input_swaps),
+                ('Change all defaults', self.changedefaults),
+                ('Display defaults', self.printdefaults))
                 
+    def _input_count(self):
+        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
+    
+    def _input_length(self):
+        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
+        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
+    
+    def _cap_count(self):
+        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
+    
+    def _generate(self):
+        for i in range(self.GENCOUNT):
+            print self.run()
+    
+    def _input_swaps(self):
+        try:
+            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
+            if userinput:
+                self.SWAPS = dict(userinput)
+        except (NameError, SyntaxError):
+            pass # Ignore invalid user input
+
     def do_setup(self):
         """
         Decides what the operating system is and chooses the install directory of WordNet
@@ -116,20 +140,10 @@ class pswrdgen:
     
     def changedefaults(self):
         """Change the configuration or except the default configuration."""
-        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
-        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
-        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
-        
-        try:
-            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
-            if userinput:
-                self.SWAPS = dict(userinput)
-        except SyntaxError:
-            pass # Ignore invalid user input
-                
-        print "DEFAULTS CHANGED TO:"
-        self.printdefaults()
+        self._input_count()
+        self._input_length()
+        self._cap_count()
+        self._input_swaps()
 
     def printdefaults(self):
         """Print the configuration defaults to the console"""
@@ -140,6 +154,7 @@ class pswrdgen:
         print "SWAPS: " + str(self.SWAPS) 
     
     def setnounfile(self, source):
+        """Set and load a text file, ignoring inherantly invalid words"""
         self.NOUNFILE = source
         
         data = open(source, 'r')
@@ -150,6 +165,7 @@ class pswrdgen:
         
         #If there are multiple words on a line take the first, ignore words split by '_', ', or '.'
         self.wordnetlist = [s.split(" ")[0] for s in data if '_' not in s if '.' not in s if "'" not in s]
+        self.wordnetlist = [s for s in self.wordnetlist if 3 < len(s)]
         self.wordlengthcap = max(len(s) for s in self.wordnetlist)
 
     def run(self):
