@@ -1,5 +1,5 @@
-import os, sys, random
-__version__ = '0.2.7'
+import os, sys, random, re
+__version__ = '0.2.8'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -156,16 +156,10 @@ class pswrdgen:
     def setnounfile(self, source):
         """Set and load a text file, ignoring inherantly invalid words"""
         self.NOUNFILE = source
-        
+        match = re.compile('^([a-zA-Z]{3,}) ', re.M)
         data = open(source, 'r')
-        #discard lines until the start of usable words 
-        for s in data:
-            if s[0] == 'a':
-                break
         
-        #If there are multiple words on a line take the first, ignore words split by '_', ', or '.'
-        self.wordnetlist = [s.split(" ")[0] for s in data if '_' not in s if '.' not in s if "'" not in s]
-        self.wordnetlist = [s for s in self.wordnetlist if 3 < len(s)]
+        self.wordnetlist = sorted(set(match.findall('\n'.join(data))))
         self.wordlengthcap = max(len(s) for s in self.wordnetlist)
 
     def run(self):
