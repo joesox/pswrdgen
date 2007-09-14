@@ -101,7 +101,7 @@ class pswrdgen:
             print self.run()
 
     def _add_count(self):
-        self.ADDCOUNT = getint("How many capital letters in your password ", self.ADDCOUNT, 1)
+        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 1)
     
     def _input_punctuation(self):
         try:
@@ -158,6 +158,8 @@ class pswrdgen:
         self._input_count()
         self._input_length()
         self._cap_count()
+        self._input_punctuation()
+        self._add_count()
         self._input_swaps()
 
     def printdefaults(self):
