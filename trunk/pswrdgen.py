@@ -1,5 +1,5 @@
 import os, sys, random, re
-__version__ = '0.2.8'
+__version__ = '0.2.9'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -75,12 +75,14 @@ class pswrdgen:
     def menu(self):
         """Main Menu loop"""
         box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
-        run_menu(50, self.__dict__, 
+        run_menu(70, self.__dict__, 
                 ('Generate %(GENCOUNT)i password(s)', self._generate),
                 ('Change generate count (now %(GENCOUNT)i)', self._input_count),
                 ('Change password length (now %(MINLENGTH)i<=length<=%(MAXLENGTH)i)', self._input_length),
                 ('Change capitalisation count (now %(CAPLENGTH)i)', self._cap_count),
                 ('Change swap dictionary (now %(SWAPS)s)', self._input_swaps),
+                ('Change number/punctuation insertion (now %(ADDCOUNT)s)', self._add_count),
+                ('Change number/punctuation list (now %(ADDCHAR)s)', self._input_punctuation),
                 ('Change all defaults', self.changedefaults),
                 ('Display defaults', self.printdefaults))
                 
@@ -97,6 +99,17 @@ class pswrdgen:
     def _generate(self):
         for i in range(self.GENCOUNT):
             print self.run()
+
+    def _add_count(self):
+        self.ADDCOUNT = getint("How many capital letters in your password ", self.ADDCOUNT, 1)
+    
+    def _input_punctuation(self):
+        try:
+            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
+            if userinput:
+                self.ADDCHAR = userinput
+        except (NameError, SyntaxError):
+            pass # Ignore invalid user input
     
     def _input_swaps(self):
         try:
@@ -137,6 +150,8 @@ class pswrdgen:
         self.MAXLENGTH = 16
         self.CAPLENGTH = 2
         self.GENCOUNT = 10
+        self.ADDCHAR = '01234567890-_!@$%^&*(),.<>+='
+        self.ADDCOUNT = 2
     
     def changedefaults(self):
         """Change the configuration or except the default configuration."""
@@ -166,8 +181,8 @@ class pswrdgen:
         """Generate one password"""
         # Pick a random word of valid length
         curword = ''
-        maxlength = min(self.MAXLENGTH, self.wordlengthcap)
-        minlength = min(maxlength, self.MINLENGTH)
+        maxlength = min(self.MAXLENGTH, self.wordlengthcap) - self.ADDCOUNT
+        minlength = min(maxlength, self.MINLENGTH) - self.ADDCOUNT
         while not (curword and minlength <= wordlength <= maxlength):
             curword = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
             wordlength = len(curword)
@@ -184,6 +199,11 @@ class pswrdgen:
             if wordcharlist[randnum].isalpha() and wordcharlist[randnum].islower():
                 capitalise -= 1
                 wordcharlist[randnum] = wordcharlist[randnum].upper()
+        
+        for i in range(self.ADDCOUNT):
+            randnum = random.randrange(0, len(wordcharlist))
+            randchar = random.randrange(0, len(self.ADDCHAR))
+            wordcharlist = wordcharlist[:randnum] + [self.ADDCHAR[randchar]] + wordcharlist[randnum:]
             
         return ''.join(wordcharlist)
 
