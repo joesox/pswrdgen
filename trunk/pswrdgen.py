@@ -1,5 +1,5 @@
 import os, sys, random, re
-__version__ = '0.2.9'
+__version__ = '0.2.10'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -105,7 +105,7 @@ class pswrdgen:
     
     def _input_punctuation(self):
         try:
-            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
+            userinput = raw_input("Type in your number and punctuation characters (default=%s)?: "%self.ADDCHAR)
             if userinput:
                 self.ADDCHAR = userinput
         except (NameError, SyntaxError):
@@ -166,7 +166,9 @@ class pswrdgen:
         print "MINLENGTH: " + str(self.MINLENGTH)
         print "MAXLENGTH: " + str(self.MAXLENGTH)
         print "CAPLENGTH: " + str(self.CAPLENGTH)
-        print "SWAPS: " + str(self.SWAPS) 
+        print "SWAPS: " + str(self.SWAPS)
+        print "INSERT No.: " + str(self.ADDCOUNT)
+        print "INSERT OPTIONS: " + str(self.ADDCHAR)
     
     def setnounfile(self, source):
         """Set and load a text file, ignoring inherantly invalid words"""
