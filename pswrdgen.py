@@ -1,5 +1,5 @@
 import os, sys, random, re
-__version__ = '0.2.10'
+__version__ = '0.2.11'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -101,7 +101,7 @@ class pswrdgen:
             print self.run()
 
     def _add_count(self):
-        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 1)
+        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0)
     
     def _input_punctuation(self):
         try:
