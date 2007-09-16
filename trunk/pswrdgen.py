@@ -1,5 +1,5 @@
 import os, sys, random, re
-__version__ = '0.2.11'
+__version__ = '0.2.12'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -86,6 +86,39 @@ class pswrdgen:
                 ('Change all defaults', self.changedefaults),
                 ('Display defaults', self.printdefaults))
                 
+    def _input_count(self):
+        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
+    
+    def _input_length(self):
+        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
+        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
+    
+    def _cap_count(self):
+        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
+    
+    def _generate(self):
+        for i in range(self.GENCOUNT):
+            print self.run()
+
+    def _add_count(self):
+        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 1)
+    
+    def _input_punctuation(self):
+        try:
+            userinput = raw_input("Type in your number and punctuation characters (default=%s)?: "%self.ADDCHAR)
+            if userinput:
+                self.ADDCHAR = userinput
+        except (NameError, SyntaxError):
+            pass # Ignore invalid user input
+    
+    def _input_swaps(self):
+        try:
+            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
+            if userinput:
+                self.SWAPS = dict(userinput)
+        except (NameError, SyntaxError):
+            pass # Ignore invalid user input
+
     def _input_count(self):
         self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
     
