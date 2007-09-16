@@ -1,5 +1,15 @@
+"""config CONFIGURATION SETTINGS
+GENCOUNT::10
+MINLENGTH::8
+MAXLENGTH::16
+CAPLENGTH::2
+SWAPS::{'h': 4, 's': 5}
+ADDCHAR::'01234567890-_!@$%^&*(),.<>+='
+ADDCOUNT::2
+endconfig"""
+
 import os, sys, random, re
-__version__ = '0.2.12'
+__version__ = '0.3.0'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -65,11 +75,14 @@ class pswrdgen:
     def __init__(self):
         self.NOUNFILE = "" #WordNet Noun list to read
         self.wordnetlist =[]
-        self.SWAPS = {}
+        self.SWAPS = {}       # install default: {'h': 4, 's': 5}
         self.MINLENGTH = None
         self.MAXLENGTH = None
         self.CAPLENGTH = None
         self.GENCOUNT = None
+        self.ADDCHAR = ''     # install default: '01234567890-_!@$%^&*(),.<>+='
+        self.ADDCOUNT = None
+        self.lineList = None
         self.do_setup()
 
     def menu(self):
@@ -84,7 +97,8 @@ class pswrdgen:
                 ('Change number/punctuation insertion (now %(ADDCOUNT)s)', self._add_count),
                 ('Change number/punctuation list (now %(ADDCHAR)s)', self._input_punctuation),
                 ('Change all defaults', self.changedefaults),
-                ('Display defaults', self.printdefaults))
+                ('Display defaults', self.printdefaults),
+                 ('Save all defaults/settings', self._savesettings))
                 
     def _input_count(self):
         self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
@@ -176,15 +190,8 @@ class pswrdgen:
             WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
         #WordNet Noun list to read
         self.setnounfile(os.path.join(WORDNETPATH, "index.noun"))
-        
-        #Manually change your default do_setup settings HERE...
-        self.SWAPS = {'h':4, 's':5}
-        self.MINLENGTH = 8
-        self.MAXLENGTH = 16
-        self.CAPLENGTH = 2
-        self.GENCOUNT = 10
-        self.ADDCHAR = '01234567890-_!@$%^&*(),.<>+='
-        self.ADDCOUNT = 2
+        #Read the previous settings and load into vars
+        self.loadsettings()
     
     def changedefaults(self):
         """Change the configuration or except the default configuration."""
@@ -213,6 +220,125 @@ class pswrdgen:
         
         self.wordnetlist = sorted(set(match.findall('\n'.join(data))))
         self.wordlengthcap = max(len(s) for s in self.wordnetlist)
+    
+    def loadsettings(self):
+        """
+        loadsettings() reads the variable lines after '\"\"\"config' in this file
+        then assigns them to there variables. This allows for custom settings to be saved
+        """
+        try:
+            thisfile = sys.argv[0]
+            # Create the list of lines
+            self.lineList = open(thisfile, 'r+U').readlines()
+            # Find the first line of the settings '"""config'
+            i = 0
+            completed = False
+            for line in self.lineList:
+                if((line.find('"""config') != -1) and (completed == False)):
+                    #We found the first line, so go to the next b/c they are settings
+                    i = i + 1  # index tracking
+                    ##Assign the settings...
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.GENCOUNT = int(ivalue[1].replace("\n", "").strip())
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.GENCOUNT) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.MINLENGTH = int(ivalue[1].replace("\n", "").strip())
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.MINLENGTH) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.MAXLENGTH = int(ivalue[1].replace("\n", "").strip())
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.MAXLENGTH) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.CAPLENGTH = int(ivalue[1].replace("\n", "").strip())
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.CAPLENGTH) + "\n"
+        
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.SWAPS = eval(ivalue[1].replace("\n", "").strip())
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.SWAPS) + "\n"
+        
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.ADDCHAR = ivalue[1].replace("\n", "").strip()
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCHAR) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    self.ADDCOUNT = int(ivalue[1].replace("\n", "").strip())
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
+        
+                    # Make sure we stop looking at the rest of the .py mod or we will get errors
+                    completed = True
+                else:
+                    i = i + 1  # index tracking
+        except NameError, x:
+            print 'Exception: ', x
+            
+    def _savesettings(self):
+        try:
+            modfile = open(sys.argv[0], 'wU')
+            i = 0
+            completed = False
+            for line in self.lineList:
+                if((line.find('"""config') != -1) and (completed == False)):
+                    #We found the first line, so go to the next b/c they are settings
+                    i = i + 1  # index tracking
+                    ##Assign the settings...
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.GENCOUNT) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.MINLENGTH) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.MAXLENGTH) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.CAPLENGTH) + "\n"
+        
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.SWAPS) + "\n"
+        
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCHAR) + "\n"
+                    
+                    i = i + 1  # index tracking
+                    ivalue = self.lineList[i].split('::') #split in two
+                    #Rewrite the setting line
+                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
+        
+                    # Make sure we stop looking at the rest of the .py mod or we will get errors
+                    completed = True
+                else:
+                    i = i + 1  # index tracking
+            modfile.writelines(self.lineList)
+            modfile.close()     
+            print "all defaults saved!"
+        except NameError, x:
+            print '_savesettings Exception: ', x
 
     def run(self):
         """Generate one password"""
