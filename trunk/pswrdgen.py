@@ -8,8 +8,12 @@ ADDCHAR::'01234567890-_!@$%^&*(),.<>+='
 ADDCOUNT::2
 endconfig"""
 
-import os, sys, random, re
-__version__ = '0.3.0'
+### IRONPYTHON SUPPORT START ###
+import sys
+sys.path.append("C:\\Python24\\Lib")
+### IRONPYTHON SUPPORT END   ###
+import os, random, re
+__version__ = '0.3.1'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -227,9 +231,15 @@ class pswrdgen:
         then assigns them to there variables. This allows for custom settings to be saved
         """
         try:
-            thisfile = sys.argv[0]
+            # IronPython WorkItemId=12283 workaround START...
+            if sys.platform == 'cli':
+                FS_ROOT = 'C:\\Program Files'
+                thisfile = os.path.join( FS_ROOT, 'pswrdgeniron', 'pswrdgen.py')
+            else:
+                thisfile = sys.argv[0]
+            # IronPython WorkItemId=12283 workaround END
             # Create the list of lines
-            self.lineList = open(thisfile, 'r+U').readlines()
+            self.lineList = open(thisfile, 'r').readlines()
             # Find the first line of the settings '"""config'
             i = 0
             completed = False
@@ -288,7 +298,15 @@ class pswrdgen:
             
     def _savesettings(self):
         try:
-            modfile = open(sys.argv[0], 'wU')
+            # IronPython WorkItemId=12283 workaround START...
+            if sys.platform == 'cli':
+                FS_ROOT = 'C:\\Program Files'
+                thisfile = os.path.join( FS_ROOT, 'pswrdgeniron', 'pswrdgen.py')
+            else:
+                thisfile = sys.argv[0]
+            # IronPython WorkItemId=12283 workaround END
+            
+            modfile = open(thisfile, 'w')
             i = 0
             completed = False
             for line in self.lineList:
