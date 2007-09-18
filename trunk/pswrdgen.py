@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.2'
+__version__ = '0.3.3'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -96,6 +96,33 @@ class pswrdgen:
         b = os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-[0-9].[0-9]', 'dict', 'index.noun')
         WORDNETPATH = (glob.glob(a) or glob.glob(b))[0]
         self.setnounfile(WORDNETPATH)
+        #Read the previous settings and load into vars
+        self.loadsettings()
+
+    def do_setup(self):
+        """
+        Decides what the operating system is and chooses the install directory of WordNet
+        Assign the default values to the instance before calling run()
+        You may manually change the default configuration here.
+        NOTE: The platform handling still needs testing from non-Windows users 8/30/07
+        """
+        # Platform support for Windows
+        if sys.platform[:3] == 'win':
+            FS_ROOT = 'C:\\Program Files'
+            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
+        # Platform support for IronPython. We are assuming here that we will not run into many 'cli' platforms
+        elif sys.platform == 'cli':
+            FS_ROOT = 'C:\\Program Files'
+            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
+        # Platform support for MacOS /usr/local/WordNet-3.0/dict/
+        elif sys.platform == 'darwin':
+            FS_ROOT = '/'
+            WORDNETPATH=os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-3.0', 'dict' )
+        else:
+            FS_ROOT = '/'
+            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
+        #WordNet Noun list to read
+        self.setnounfile(os.path.join(WORDNETPATH, "index.noun"))
         #Read the previous settings and load into vars
         self.loadsettings()
     
