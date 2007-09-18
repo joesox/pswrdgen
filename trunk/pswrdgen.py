@@ -12,8 +12,8 @@ endconfig"""
 import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
-import os, random, re
-__version__ = '0.3.1'
+import os, random, re, glob
+__version__ = '0.3.2'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -77,18 +77,28 @@ class pswrdgen:
     """
     
     def __init__(self):
-        self.NOUNFILE = "" #WordNet Noun list to read
-        self.wordnetlist =[]
-        self.SWAPS = {}       # install default: {'h': 4, 's': 5}
-        self.MINLENGTH = None
-        self.MAXLENGTH = None
-        self.CAPLENGTH = None
-        self.GENCOUNT = None
-        self.ADDCHAR = ''     # install default: '01234567890-_!@$%^&*(),.<>+='
-        self.ADDCOUNT = None
-        self.lineList = None
-        self.do_setup()
-
+        """
+        Decides what the operating system is and chooses the install directory of WordNet
+        Assign the default values to the instance before calling run()
+        You may manually change the default configuration here.
+        NOTE: The platform handling still needs testing from non-Windows users 8/30/07
+        """
+        if sys.platform[:3] == 'win': #Windows
+            FS_ROOT = 'C:\\Program Files'
+        elif sys.platform == 'cli':  # IronPython
+            FS_ROOT = 'C:\\Program Files'
+        elif sys.platform == 'darwin': # MacOS
+            FS_ROOT = '/'
+        else:
+            FS_ROOT = '/'
+        #Find the WordNet Noun list to read
+        a = os.path.join( FS_ROOT, 'WordNet', '[0-9].[0-9]', 'dict', 'index.noun')
+        b = os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-[0-9].[0-9]', 'dict', 'index.noun')
+        WORDNETPATH = (glob.glob(a) or glob.glob(b))[0]
+        self.setnounfile(WORDNETPATH)
+        #Read the previous settings and load into vars
+        self.loadsettings()
+    
     def menu(self):
         """Main Menu loop"""
         box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
@@ -137,68 +147,8 @@ class pswrdgen:
         except (NameError, SyntaxError):
             pass # Ignore invalid user input
 
-    def _input_count(self):
-        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
-    
-    def _input_length(self):
-        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
-    
-    def _cap_count(self):
-        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
-    
-    def _generate(self):
-        for i in range(self.GENCOUNT):
-            print self.run()
-
-    def _add_count(self):
-        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0)
-    
-    def _input_punctuation(self):
-        try:
-            userinput = raw_input("Type in your number and punctuation characters (default=%s)?: "%self.ADDCHAR)
-            if userinput:
-                self.ADDCHAR = userinput
-        except (NameError, SyntaxError):
-            pass # Ignore invalid user input
-    
-    def _input_swaps(self):
-        try:
-            userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
-            if userinput:
-                self.SWAPS = dict(userinput)
-        except (NameError, SyntaxError):
-            pass # Ignore invalid user input
-
-    def do_setup(self):
-        """
-        Decides what the operating system is and chooses the install directory of WordNet
-        Assign the default values to the instance before calling run()
-        You may manually change the default configuration here.
-        NOTE: The platform handling still needs testing from non-Windows users 8/30/07
-        """
-        # Platform support for Windows
-        if sys.platform[:3] == 'win':
-            FS_ROOT = 'C:\\Program Files'
-            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-        # Platform support for IronPython. We are assuming here that we will not run into many 'cli' platforms
-        elif sys.platform == 'cli':
-            FS_ROOT = 'C:\\Program Files'
-            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-        # Platform support for MacOS /usr/local/WordNet-3.0/dict/
-        elif sys.platform == 'darwin':
-            FS_ROOT = '/'
-            WORDNETPATH=os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-3.0', 'dict' )
-        else:
-            FS_ROOT = '/'
-            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-        #WordNet Noun list to read
-        self.setnounfile(os.path.join(WORDNETPATH, "index.noun"))
-        #Read the previous settings and load into vars
-        self.loadsettings()
-    
     def changedefaults(self):
-        """Change the configuration or except the default configuration."""
+        """Change the configuration or accept the default configuration."""
         self._input_count()
         self._input_length()
         self._cap_count()
