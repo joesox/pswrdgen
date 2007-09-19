@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.3'
+__version__ = '0.3.4'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -100,31 +100,8 @@ class pswrdgen:
         self.loadsettings()
 
     def do_setup(self):
-        """
-        Decides what the operating system is and chooses the install directory of WordNet
-        Assign the default values to the instance before calling run()
-        You may manually change the default configuration here.
-        NOTE: The platform handling still needs testing from non-Windows users 8/30/07
-        """
-        # Platform support for Windows
-        if sys.platform[:3] == 'win':
-            FS_ROOT = 'C:\\Program Files'
-            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-        # Platform support for IronPython. We are assuming here that we will not run into many 'cli' platforms
-        elif sys.platform == 'cli':
-            FS_ROOT = 'C:\\Program Files'
-            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-        # Platform support for MacOS /usr/local/WordNet-3.0/dict/
-        elif sys.platform == 'darwin':
-            FS_ROOT = '/'
-            WORDNETPATH=os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-3.0', 'dict' )
-        else:
-            FS_ROOT = '/'
-            WORDNETPATH=os.path.join( FS_ROOT, 'WordNet', '2.1', 'dict' )
-        #WordNet Noun list to read
-        self.setnounfile(os.path.join(WORDNETPATH, "index.noun"))
-        #Read the previous settings and load into vars
-        self.loadsettings()
+        """Must leave method for pswrdgeniron backwards compatibility"""
+        pass
     
     def menu(self):
         """Main Menu loop"""
@@ -139,14 +116,14 @@ class pswrdgen:
                 ('Change number/punctuation list (now %(ADDCHAR)s)', self._input_punctuation),
                 ('Change all defaults', self.changedefaults),
                 ('Display defaults', self.printdefaults),
-                 ('Save all defaults/settings', self._savesettings))
+                    ('Save all defaults/settings', self._savesettings))
                 
     def _input_count(self):
         self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
     
     def _input_length(self):
         self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(5, self.MINLENGTH))
+        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(self.MINLENGTH, self.MINLENGTH))
     
     def _cap_count(self):
         self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
@@ -156,7 +133,7 @@ class pswrdgen:
             print self.run()
 
     def _add_count(self):
-        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 1)
+        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0)
     
     def _input_punctuation(self):
         try:
@@ -250,7 +227,9 @@ class pswrdgen:
         
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.SWAPS = eval(ivalue[1].replace("\n", "").strip())
+                    tempstr = ivalue[1].replace("\n", "").strip()
+                    self.SWAPS = {}            ## w/IPA4 exception:SyntaxError: unexpected token '<'
+                    self.SWAPS = eval(tempstr) ## asking IronPython team about this one
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.SWAPS) + "\n"
         
@@ -340,10 +319,11 @@ class pswrdgen:
         # Pick a random word of valid length
         curword = ''
         maxlength = min(self.MAXLENGTH, self.wordlengthcap) - self.ADDCOUNT
-        minlength = min(maxlength, self.MINLENGTH) - self.ADDCOUNT
-        while not (curword and minlength <= wordlength <= maxlength):
+        while True:
             curword = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
-            wordlength = len(curword)
+            if (self.MINLENGTH <= len(curword) <= self.MAXLENGTH):
+                break #Make sure we break no matter what
+        wordlength = len(curword)
         
         #DO replacement swaps here
         for k, v in self.SWAPS.iteritems():
@@ -371,4 +351,4 @@ def test():
     i.menu() 
     
 if __name__ == '__main__':
-  test()
+    test()
