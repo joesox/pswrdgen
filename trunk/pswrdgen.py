@@ -11,9 +11,10 @@ endconfig"""
 ### IRONPYTHON SUPPORT START ###
 import sys
 sys.path.append("C:\\Python24\\Lib")
+sys.path.append("C:\\Python25\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.4'
+__version__ = '0.3.5'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
