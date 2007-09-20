@@ -14,7 +14,7 @@ sys.path.append("C:\\Python24\\Lib")
 sys.path.append("C:\\Python25\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.5'
+__version__ = '0.3.6'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -124,7 +124,7 @@ class pswrdgen:
     
     def _input_length(self):
         self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, max(self.MINLENGTH, self.MINLENGTH))
+        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, self.MINLENGTH)
     
     def _cap_count(self):
         self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
@@ -196,39 +196,37 @@ class pswrdgen:
             # Create the list of lines
             self.lineList = open(thisfile, 'r').readlines()
             # Find the first line of the settings '"""config'
-            i = 0
-            completed = False
-            for line in self.lineList:
-                if((line.find('"""config') != -1) and (completed == False)):
+            for i, line in enumerate(self.lineList):
+                if '"""config' in line:
                     #We found the first line, so go to the next b/c they are settings
                     i = i + 1  # index tracking
                     ##Assign the settings...
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.GENCOUNT = int(ivalue[1].replace("\n", "").strip())
+                    self.GENCOUNT = int(ivalue[1].strip())
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.GENCOUNT) + "\n"
                     
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.MINLENGTH = int(ivalue[1].replace("\n", "").strip())
+                    self.MINLENGTH = int(ivalue[1].strip())
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.MINLENGTH) + "\n"
                     
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.MAXLENGTH = int(ivalue[1].replace("\n", "").strip())
+                    self.MAXLENGTH = int(ivalue[1].strip())
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.MAXLENGTH) + "\n"
                     
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.CAPLENGTH = int(ivalue[1].replace("\n", "").strip())
+                    self.CAPLENGTH = int(ivalue[1].strip())
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.CAPLENGTH) + "\n"
         
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    tempstr = ivalue[1].replace("\n", "").strip()
+                    tempstr = ivalue[1].strip()
                     self.SWAPS = {}            ## w/IPA4 exception:SyntaxError: unexpected token '<'
                     self.SWAPS = eval(tempstr) ## asking IronPython team about this one
                     #Rewrite the setting line
@@ -236,20 +234,18 @@ class pswrdgen:
         
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.ADDCHAR = ivalue[1].replace("\n", "").strip()
+                    self.ADDCHAR = ivalue[1].strip()
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.ADDCHAR) + "\n"
                     
                     i = i + 1  # index tracking
                     ivalue = self.lineList[i].split('::') #split in two
-                    self.ADDCOUNT = int(ivalue[1].replace("\n", "").strip())
+                    self.ADDCOUNT = int(ivalue[1].strip())
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
         
                     # Make sure we stop looking at the rest of the .py mod or we will get errors
-                    completed = True
-                else:
-                    i = i + 1  # index tracking
+                    break
         except NameError, x:
             print 'Exception: ', x
             
@@ -263,11 +259,8 @@ class pswrdgen:
                 thisfile = sys.argv[0]
             # IronPython WorkItemId=12283 workaround END
             
-            modfile = open(thisfile, 'w')
-            i = 0
-            completed = False
-            for line in self.lineList:
-                if((line.find('"""config') != -1) and (completed == False)):
+            for i, line in enumerate(self.lineList):
+                if '"""config' in line :
                     #We found the first line, so go to the next b/c they are settings
                     i = i + 1  # index tracking
                     ##Assign the settings...
@@ -306,9 +299,8 @@ class pswrdgen:
                     self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
         
                     # Make sure we stop looking at the rest of the .py mod or we will get errors
-                    completed = True
-                else:
-                    i = i + 1  # index tracking
+                    break
+            modfile = open(thisfile, 'w')
             modfile.writelines(self.lineList)
             modfile.close()     
             print "all defaults saved!"
