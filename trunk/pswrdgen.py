@@ -11,10 +11,9 @@ endconfig"""
 ### IRONPYTHON SUPPORT START ###
 import sys
 sys.path.append("C:\\Python24\\Lib")
-sys.path.append("C:\\Python25\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.6'
+__version__ = '0.3.7'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -102,7 +101,7 @@ class pswrdgen:
 
     def do_setup(self):
         """Must leave method for pswrdgeniron backwards compatibility"""
-        pass
+        self.__init__()
     
     def menu(self):
         """Main Menu loop"""
@@ -117,7 +116,7 @@ class pswrdgen:
                 ('Change number/punctuation list (now %(ADDCHAR)s)', self._input_punctuation),
                 ('Change all defaults', self.changedefaults),
                 ('Display defaults', self.printdefaults),
-                    ('Save all defaults/settings', self._savesettings))
+                ('Save all defaults/settings', self._savesettings))
                 
     def _input_count(self):
         self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
@@ -244,7 +243,6 @@ class pswrdgen:
                     #Rewrite the setting line
                     self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
         
-                    # Make sure we stop looking at the rest of the .py mod or we will get errors
                     break
         except NameError, x:
             print 'Exception: ', x
@@ -259,50 +257,34 @@ class pswrdgen:
                 thisfile = sys.argv[0]
             # IronPython WorkItemId=12283 workaround END
             
-            for i, line in enumerate(self.lineList):
+	    for i, line in enumerate(self.lineList):
                 if '"""config' in line :
-                    #We found the first line, so go to the next b/c they are settings
-                    i = i + 1  # index tracking
-                    ##Assign the settings...
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.GENCOUNT) + "\n"
+                    ## Rewrite the settings...
+                    header = self.lineList[i+1].split('::')[0]
+                    self.lineList[i+1] = '%s::%s\n'%(header, self.GENCOUNT)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.MINLENGTH) + "\n"
+                    header = self.lineList[i+2].split('::')[0]
+                    self.lineList[i+2] = '%s::%s\n'%(header, self.MINLENGTH)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.MAXLENGTH) + "\n"
+                    header = self.lineList[i+3].split('::')[0]
+                    self.lineList[i+3] = '%s::%s\n'%(header, self.MAXLENGTH)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.CAPLENGTH) + "\n"
+                    header = self.lineList[i+4].split('::')[0]
+                    self.lineList[i+4] = '%s::%s\n'%(header, self.CAPLENGTH)
         
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.SWAPS) + "\n"
+                    header = self.lineList[i+5].split('::')[0]
+                    self.lineList[i+5] = '%s::%s\n'%(header, self.SWAPS)
         
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCHAR) + "\n"
+                    header = self.lineList[i+6].split('::')[0]
+                    self.lineList[i+6] = '%s::%s\n'%(header, self.ADDCHAR)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
+                    header = self.lineList[i+7].split('::')[0]
+                    self.lineList[i+7] = '%s::%s\n'%(header, self.ADDCOUNT)
         
-                    # Make sure we stop looking at the rest of the .py mod or we will get errors
                     break
             modfile = open(thisfile, 'w')
             modfile.writelines(self.lineList)
-            modfile.close()     
+            modfile.close()
             print "all defaults saved!"
         except NameError, x:
             print '_savesettings Exception: ', x
