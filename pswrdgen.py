@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.8'
+__version__ = '0.3.9'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -249,6 +249,36 @@ class pswrdgen:
             print "all defaults saved!"
         except NameError, x:
             print '_savesettings Exception: ', x
+    
+    def generate(self, count):
+        """Generate count passwords"""
+        filteredlist = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        result = []
+        if not len(filteredlist):
+            print 'There are no words that match your requirement'
+        else:
+            for i in range(count):
+                curword = filteredlist[random.randrange(0, len(filteredlist))]
+                
+                # DO replacement swaps here
+                for k, v in self.SWAPS.iteritems():
+                    curword = curword.replace(k, str(v))
+                
+                # Capitalise self.CAPLENGTH or all letters
+                wordcharlist = list(curword)
+                capitalise = min(self.CAPLENGTH, sum(1 for c in wordcharlist if c.isalpha() and c.islower()))
+                while capitalise:
+                    randnum = random.randrange(0, len(curword))
+                    if wordcharlist[randnum].isalpha() and wordcharlist[randnum].islower():
+                        capitalise -= 1
+                        wordcharlist[randnum] = wordcharlist[randnum].upper()
+                
+                for i in range(self.ADDCOUNT):
+                    randnum = random.randrange(0, len(wordcharlist))
+                    randchar = random.randrange(0, len(self.ADDCHAR))
+                    wordcharlist = wordcharlist[:randnum] + [self.ADDCHAR[randchar]] + wordcharlist[randnum:]
+                result.append(''.join(wordcharlist))
+        return result
 
     def run(self):
         """Generate one password"""
