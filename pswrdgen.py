@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.7'
+__version__ = '0.3.8'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -197,51 +197,29 @@ class pswrdgen:
             # Find the first line of the settings '"""config'
             for i, line in enumerate(self.lineList):
                 if '"""config' in line:
-                    #We found the first line, so go to the next b/c they are settings
-                    i = i + 1  # index tracking
-                    ##Assign the settings...
-                    ivalue = self.lineList[i].split('::') #split in two
-                    self.GENCOUNT = int(ivalue[1].strip())
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.GENCOUNT) + "\n"
+                    # Each setting is defined in order on a line in the form
+                    # "header::value" with the value encoded as a string
+                    ivalue = self.lineList[i+1].split('::')[1].strip()
+                    self.GENCOUNT = int(ivalue)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    self.MINLENGTH = int(ivalue[1].strip())
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.MINLENGTH) + "\n"
+                    ivalue = self.lineList[i+2].split('::')[1].strip()
+                    self.MINLENGTH = int(ivalue)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    self.MAXLENGTH = int(ivalue[1].strip())
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.MAXLENGTH) + "\n"
+                    ivalue = self.lineList[i+3].split('::')[1].strip()
+                    self.MAXLENGTH = int(ivalue)
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    self.CAPLENGTH = int(ivalue[1].strip())
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.CAPLENGTH) + "\n"
+                    ivalue = self.lineList[i+4].split('::')[1].strip()
+                    self.CAPLENGTH = int(ivalue)
         
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    tempstr = ivalue[1].strip()
+                    ivalue = self.lineList[i+5].split('::')[1].strip()
                     self.SWAPS = {}            ## w/IPA4 exception:SyntaxError: unexpected token '<'
-                    self.SWAPS = eval(tempstr) ## asking IronPython team about this one
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.SWAPS) + "\n"
+                    self.SWAPS = eval(ivalue)  ## asking IronPython team about this one
         
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    self.ADDCHAR = ivalue[1].strip()
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCHAR) + "\n"
+                    ivalue = self.lineList[i+6].split('::')[1].strip()
+                    self.ADDCHAR = ivalue
                     
-                    i = i + 1  # index tracking
-                    ivalue = self.lineList[i].split('::') #split in two
-                    self.ADDCOUNT = int(ivalue[1].strip())
-                    #Rewrite the setting line
-                    self.lineList[i] = ivalue[0] + "::" + str(self.ADDCOUNT) + "\n"
+                    ivalue = self.lineList[i+7].split('::')[1].strip()
+                    self.ADDCOUNT = int(ivalue)
         
                     break
         except NameError, x:
@@ -257,31 +235,14 @@ class pswrdgen:
                 thisfile = sys.argv[0]
             # IronPython WorkItemId=12283 workaround END
             
-	    for i, line in enumerate(self.lineList):
+            for i, line in enumerate(self.lineList):
                 if '"""config' in line :
-                    ## Rewrite the settings...
-                    header = self.lineList[i+1].split('::')[0]
-                    self.lineList[i+1] = '%s::%s\n'%(header, self.GENCOUNT)
-                    
-                    header = self.lineList[i+2].split('::')[0]
-                    self.lineList[i+2] = '%s::%s\n'%(header, self.MINLENGTH)
-                    
-                    header = self.lineList[i+3].split('::')[0]
-                    self.lineList[i+3] = '%s::%s\n'%(header, self.MAXLENGTH)
-                    
-                    header = self.lineList[i+4].split('::')[0]
-                    self.lineList[i+4] = '%s::%s\n'%(header, self.CAPLENGTH)
-        
-                    header = self.lineList[i+5].split('::')[0]
-                    self.lineList[i+5] = '%s::%s\n'%(header, self.SWAPS)
-        
-                    header = self.lineList[i+6].split('::')[0]
-                    self.lineList[i+6] = '%s::%s\n'%(header, self.ADDCHAR)
-                    
-                    header = self.lineList[i+7].split('::')[0]
-                    self.lineList[i+7] = '%s::%s\n'%(header, self.ADDCOUNT)
-        
+                    for j, var in enumerate((self.GENCOUNT, self.MINLENGTH, self.MAXLENGTH, self.CAPLENGTH, self.SWAPS, self.ADDCHAR, self.ADDCOUNT)):
+                        mark = i+j+1
+                        header = self.lineList[mark].split('::')[0]
+                        self.lineList[mark] = '%s::%s\n'%(header, var)
                     break
+                
             modfile = open(thisfile, 'w')
             modfile.writelines(self.lineList)
             modfile.close()
