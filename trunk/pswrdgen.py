@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.9'
+__version__ = '0.3.10'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -199,28 +199,19 @@ class pswrdgen:
                 if '"""config' in line:
                     # Each setting is defined in order on a line in the form
                     # "header::value" with the value encoded as a string
-                    ivalue = self.lineList[i+1].split('::')[1].strip()
-                    self.GENCOUNT = int(ivalue)
-                    
-                    ivalue = self.lineList[i+2].split('::')[1].strip()
-                    self.MINLENGTH = int(ivalue)
-                    
-                    ivalue = self.lineList[i+3].split('::')[1].strip()
-                    self.MAXLENGTH = int(ivalue)
-                    
-                    ivalue = self.lineList[i+4].split('::')[1].strip()
-                    self.CAPLENGTH = int(ivalue)
-        
-                    ivalue = self.lineList[i+5].split('::')[1].strip()
-                    self.SWAPS = {}            ## w/IPA4 exception:SyntaxError: unexpected token '<'
-                    self.SWAPS = eval(ivalue)  ## asking IronPython team about this one
-        
-                    ivalue = self.lineList[i+6].split('::')[1].strip()
-                    self.ADDCHAR = ivalue
-                    
-                    ivalue = self.lineList[i+7].split('::')[1].strip()
-                    self.ADDCOUNT = int(ivalue)
-        
+                    self.GENCOUNT = int(self.lineList[i+1].split('::')[1].strip())
+                    self.MINLENGTH = int(self.lineList[i+2].split('::')[1].strip())
+                    self.MAXLENGTH = int(self.lineList[i+3].split('::')[1].strip())
+                    self.CAPLENGTH = int(self.lineList[i+4].split('::')[1].strip())
+                    try:
+                        self.SWAPS = eval(self.lineList[i+5].split('::')[1].strip())
+                    except Exception, e:
+                        ## w/IPA4 exception:SyntaxError: unexpected token '<'
+                        ## asking IronPython team about this one
+                        print e
+                        self.SWAPS = {}
+                    self.ADDCHAR = self.lineList[i+6].split('::')[1].strip()
+                    self.ADDCOUNT = int(self.lineList[i+7].split('::')[1].strip())
                     break
         except NameError, x:
             print 'Exception: ', x
