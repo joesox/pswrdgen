@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.10'
+__version__ = '0.3.11'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -69,6 +69,15 @@ def run_menu(width, values, *options):
                 break
             elif 0 < choice <= len(options):
                 options[choice-1][1]()
+
+
+def loadwords(fl):
+    match = re.compile('^([a-zA-Z]{3,}) ', re.M)
+    data = open(fl, 'r')
+    try:
+        return set(match.findall('\n'.join(data)))
+    finally:
+        data.close()
 
 
 class pswrdgen:
@@ -173,12 +182,18 @@ class pswrdgen:
     def setnounfile(self, source):
         """Set and load a text file, ignoring inherantly invalid words"""
         self.NOUNFILE = source
-        match = re.compile('^([a-zA-Z]{3,}) ', re.M)
-        data = open(source, 'r')
-        
-        self.wordnetlist = sorted(set(match.findall('\n'.join(data))))
-        self.wordlengthcap = max(len(s) for s in self.wordnetlist)
+        self.wordfilelists = [source]
+        self.wordnetlist = loadwords(source)
     
+    def addnounfile(self, source):
+        self.wordfilelists.append(source)
+        self.wordnetlist.update(loadwords(source))
+    
+    def removenounfile(self, source):
+        self.wordfilelists.remove(source)
+        # Technicly wrong, if/when * is droped in favor of safe_* can be droped
+        self.wordnetlist.difference_update(loadwords(source))
+
     def loadsettings(self):
         """
         loadsettings() reads the variable lines after '\"\"\"config' in this file
@@ -192,7 +207,6 @@ class pswrdgen:
             else:
                 thisfile = sys.argv[0]
             # IronPython WorkItemId=12283 workaround END
-            # Create the list of lines
             self.lineList = open(thisfile, 'r').readlines()
             # Find the first line of the settings '"""config'
             for i, line in enumerate(self.lineList):
@@ -241,65 +255,63 @@ class pswrdgen:
         except NameError, x:
             print '_savesettings Exception: ', x
     
-    def generate(self, count):
+    def safe_generate(self, count):
         """Generate count passwords"""
-        filteredlist = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
-        result = []
-        if not len(filteredlist):
+        words = [s for f in self.wordfilelists for s in loadwords(f)
+                    if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        if not len(words):
             print 'There are no words that match your requirement'
         else:
-            for i in range(count):
-                curword = filteredlist[random.randrange(0, len(filteredlist))]
-                
-                # DO replacement swaps here
-                for k, v in self.SWAPS.iteritems():
-                    curword = curword.replace(k, str(v))
-                
-                # Capitalise self.CAPLENGTH or all letters
-                wordcharlist = list(curword)
-                capitalise = min(self.CAPLENGTH, sum(1 for c in wordcharlist if c.isalpha() and c.islower()))
-                while capitalise:
-                    randnum = random.randrange(0, len(curword))
-                    if wordcharlist[randnum].isalpha() and wordcharlist[randnum].islower():
-                        capitalise -= 1
-                        wordcharlist[randnum] = wordcharlist[randnum].upper()
-                
-                for i in range(self.ADDCOUNT):
-                    randnum = random.randrange(0, len(wordcharlist))
-                    randchar = random.randrange(0, len(self.ADDCHAR))
-                    wordcharlist = wordcharlist[:randnum] + [self.ADDCHAR[randchar]] + wordcharlist[randnum:]
-                result.append(''.join(wordcharlist))
-        return result
+            return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
+
+    def generate(self, count):
+        """Generate count passwords"""
+        words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        if not len(words):
+            print 'There are no words that match your requirement'
+        else:
+            return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
+    
+    def safe_run(self):
+        """Generate one password"""
+        words = [s for f in self.wordfilelists for s in loadwords(f)
+                    if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        if not len(words):
+            print 'There are no words that match your requirement'
+        else:
+            return self.modifyword(words[random.randrange(0, len(words))])
 
     def run(self):
         """Generate one password"""
-        # Pick a random word of valid length
-        curword = ''
-        maxlength = min(self.MAXLENGTH, self.wordlengthcap) - self.ADDCOUNT
-        while True:
-            curword = self.wordnetlist[random.randrange(0, len(self.wordnetlist))]
-            if (self.MINLENGTH <= len(curword) <= self.MAXLENGTH):
-                break #Make sure we break no matter what
+        words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        if not len(words):
+            print 'There are no words that match your requirement'
+        else:
+            return self.modifyword(words[random.randrange(0, len(words))])
+
+    def modifyword(self, curword):
         wordlength = len(curword)
         
-        #DO replacement swaps here
+        # Replacement swaps here
         for k, v in self.SWAPS.iteritems():
             curword = curword.replace(k, str(v))
-        
+
         # Capitalise self.CAPLENGTH or all letters
         wordcharlist = list(curword)
         capitalise = min(self.CAPLENGTH, sum(1 for c in wordcharlist if c.isalpha() and c.islower()))
         while capitalise:
-            randnum = random.randrange(0, wordlength)
+            randnum = random.randrange(0, len(curword))
             if wordcharlist[randnum].isalpha() and wordcharlist[randnum].islower():
                 capitalise -= 1
                 wordcharlist[randnum] = wordcharlist[randnum].upper()
         
+        # Add extra characters
         for i in range(self.ADDCOUNT):
             randnum = random.randrange(0, len(wordcharlist))
             randchar = random.randrange(0, len(self.ADDCHAR))
             wordcharlist = wordcharlist[:randnum] + [self.ADDCHAR[randchar]] + wordcharlist[randnum:]
-            
+
+        # Recombine and return
         return ''.join(wordcharlist)
 
 
