@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.11'
+__version__ = '0.3.12'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -80,6 +80,18 @@ def loadwords(fl):
         data.close()
 
 
+def bulkloadfilter(fl, min, max):
+    match = re.compile('^([a-zA-Z]{%i,%i}) '%(min, max), re.M)
+    res = set()
+    for f in fl:
+        data = open(f, 'r')
+        try:
+            res.update(set(match.findall('\n'.join(data))))
+        finally:
+            data.close()
+    return res
+
+
 class pswrdgen:
     """
     Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
@@ -89,7 +101,6 @@ class pswrdgen:
         """
         Decides what the operating system is and chooses the install directory of WordNet
         Assign the default values to the instance before calling run()
-        You may manually change the default configuration here.
         NOTE: The platform handling still needs testing from non-Windows users 8/30/07
         """
         if sys.platform[:3] == 'win': #Windows
@@ -116,7 +127,7 @@ class pswrdgen:
         """Main Menu loop"""
         box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
         run_menu(70, self.__dict__, 
-                ('Generate %(GENCOUNT)i password(s)', self._generate),
+                ('Generate %(GENCOUNT)i password(s)', self._safe_generate),
                 ('Change generate count (now %(GENCOUNT)i)', self._input_count),
                 ('Change password length (now %(MINLENGTH)i<=length<=%(MAXLENGTH)i)', self._input_length),
                 ('Change capitalisation count (now %(CAPLENGTH)i)', self._cap_count),
@@ -140,6 +151,10 @@ class pswrdgen:
     def _generate(self):
         for i in range(self.GENCOUNT):
             print self.run()
+
+    def _safe_generate(self):
+        for i in self.safe_generate(self.GENCOUNT):
+            print i
 
     def _add_count(self):
         self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0)
@@ -257,8 +272,7 @@ class pswrdgen:
     
     def safe_generate(self, count):
         """Generate count passwords"""
-        words = [s for f in self.wordfilelists for s in loadwords(f)
-                    if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        words = [s for s in bulkloadfilter(self.wordfilelists, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
             print 'There are no words that match your requirement'
         else:
@@ -274,8 +288,7 @@ class pswrdgen:
     
     def safe_run(self):
         """Generate one password"""
-        words = [s for f in self.wordfilelists for s in loadwords(f)
-                    if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
+        words = [s for s in bulkloadfilter(self.wordfilelists, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
             print 'There are no words that match your requirement'
         else:
