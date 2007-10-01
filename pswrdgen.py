@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.12'
+__version__ = '0.3.13'
 __author__ = "Joseph P. Socoloski III"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -72,7 +72,7 @@ def run_menu(width, values, *options):
 
 
 def loadwords(fl):
-    match = re.compile('^([a-zA-Z]{3,}) ', re.M)
+    match = re.compile('^([a-zA-Z]{1,})\s', re.M)
     data = open(fl, 'r')
     try:
         return set(match.findall('\n'.join(data)))
@@ -81,7 +81,7 @@ def loadwords(fl):
 
 
 def bulkloadfilter(fl, min, max):
-    match = re.compile('^([a-zA-Z]{%i,%i}) '%(min, max), re.M)
+    match = re.compile('^([a-zA-Z]{%i,%i})\s'%(min, max), re.M)
     res = set()
     for f in fl:
         data = open(f, 'r')
@@ -98,6 +98,8 @@ class pswrdgen:
     """
     
     def __init__(self):
+        self.wordfilelists = []
+        self.wordnetlist = set()
         """
         Decides what the operating system is and chooses the install directory of WordNet
         Assign the default values to the instance before calling run()
@@ -150,11 +152,18 @@ class pswrdgen:
     
     def _generate(self):
         for i in range(self.GENCOUNT):
+            if not i:
+                print 'There are no words that match your requirement'
+                break
             print self.run()
 
     def _safe_generate(self):
-        for i in self.safe_generate(self.GENCOUNT):
-            print i
+        tmp = self.safe_generate(self.GENCOUNT)
+        if len(tmp):
+            for i in tmp:
+                print i
+        else:
+            print 'There are no words that match your requirement'
 
     def _add_count(self):
         self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0)
@@ -274,7 +283,7 @@ class pswrdgen:
         """Generate count passwords"""
         words = [s for s in bulkloadfilter(self.wordfilelists, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
-            print 'There are no words that match your requirement'
+            return []
         else:
             return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
 
@@ -282,7 +291,7 @@ class pswrdgen:
         """Generate count passwords"""
         words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
         if not len(words):
-            print 'There are no words that match your requirement'
+            return []
         else:
             return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
     
@@ -290,7 +299,7 @@ class pswrdgen:
         """Generate one password"""
         words = [s for s in bulkloadfilter(self.wordfilelists, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
-            print 'There are no words that match your requirement'
+           return ''
         else:
             return self.modifyword(words[random.randrange(0, len(words))])
 
@@ -298,7 +307,7 @@ class pswrdgen:
         """Generate one password"""
         words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
         if not len(words):
-            print 'There are no words that match your requirement'
+            return ''
         else:
             return self.modifyword(words[random.randrange(0, len(words))])
 
