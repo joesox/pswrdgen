@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.4.1' #pswrdgeniron dependency
+__version__ = '0.4.2' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
