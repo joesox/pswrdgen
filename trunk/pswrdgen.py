@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.4.2' #pswrdgeniron dependency
+__version__ = '0.4.3' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -169,7 +169,7 @@ class pswrdgen:
         """Main Menu loop"""
         box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
         run_menu(70, self.__dict__, 
-                ('Generate %(GENCOUNT)i password(s)', self._safe_generate),
+                ('Generate %(GENCOUNT)i password(s)', self._generate),
                 ('Change generate count (now %(GENCOUNT)i)', self._input_count),
                 ('Change password length (now %(MINLENGTH)i<=length<=%(MAXLENGTH)i)', self._input_length),
                 ('Change capitalisation count (now %(CAPLENGTH)i)', self._cap_count),
@@ -192,16 +192,8 @@ class pswrdgen:
     def _cap_count(self):
         """ self.CAPLENGTH """
         self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1) #pswrdgeniron dependency
-    
-    def _generate(self):
-        """ ?? used more than once? """
-        for i in range(self.GENCOUNT):
-            if not i:
-                print 'There are no words that match your requirement'
-                break
-            print self.run()
 
-    def _safe_generate(self):
+    def __generate(self):
         """
         Generate self.GENCOUNT passwords in one go haveing the wordlist loaded fresh
         Display the words to the user or if none match explain this
@@ -340,7 +332,7 @@ class pswrdgen:
             return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
 
     def run(self):
-        """Generate one password"""
+        """Generate one password #pswrdgeniron dependency"""
         words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
         if not len(words):
             return ''
