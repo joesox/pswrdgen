@@ -20,7 +20,10 @@ __doc__ = 'Semantic Password generator that uses WordNet, random capitalization,
 
 
 def getint(msg, default, low):
-    """"""
+    """
+        Repeatedly ask the user the question <msg> until they
+        provide an intger <= low or an empty line when the default is used
+    """
     while True:
         userinput = raw_input(msg+" (default=%i, minimum=%i) ?: "%(default, low))
         if userinput == '':
@@ -34,13 +37,26 @@ def getint(msg, default, low):
 
 
 def printline(length, div, line):
-    """"""
+    """
+        Print a line of length <length> with a * at each end and <line> in the body
+        <div> determins where the line should be justified
+        1 right justified
+        2 centered
+        use any large number for left
+    """
     pad = max(0, (length-len(line))/div)
     print "*%*s%-*s *" %(pad+1, ' ', length-pad, line)
 
 
 def box(length, justify, *lines):
-    """"""
+    """
+        Disaply <lines> in a box of *'s width <length>
+        Split each line at < >  if to long
+        Justify gives the overall text justification
+            c: center
+            r: right
+            default left
+    """
     div = {'c':2, 'r':1}.get(justify, 100)
     print "*"*(length+4)
     for line in lines:
@@ -58,7 +74,13 @@ def box(length, justify, *lines):
 
 
 def run_menu(width, values, *options):
-    """"""
+    """
+        Create a menu of width <width> from a tuple of one description, function/method per option
+        Add an exit method at the end of the list
+        Display with each option being given an integer key in order starting from 1
+        Repeatedly ask for an option and call the linked function untill asked to stop
+        The menu can also be left by entering 'exit'
+    """
     while True:
         tmp = ['%i) %s'%(i+1, s[0]%values) for i, s in enumerate(options)]
         box(width, 'l', 'Choose one of the below:', *tmp+['%i) exit'%(len(options)+1)])
@@ -76,7 +98,11 @@ def run_menu(width, values, *options):
 
 
 def loadwords(fl):
-    """"""
+    """
+        Find every word in a file and return a set of them to remove duplicates
+        A word is a sequenc of 1 or more letters at the start of the line followed
+        by a white space
+    """
     match = re.compile('^([a-zA-Z]{1,})\s', re.M)
     data = open(fl, 'r')
     try:
@@ -85,17 +111,25 @@ def loadwords(fl):
         data.close()
 
 
-def bulkloadfilter(fl, min, max):
-    """"""
+def bulkloadfilter(filelist, min, max):
+    """
+        Build a set of all valid words in all files in the filelist
+        A word is a sequenc of <min> to <max> letters at the start of the line followed
+        by a white space.
+        Store and return words in a set to avoid duplication
+    """
+    # Define what a word is (using the above def) in a RegExp
     match = re.compile('^([a-zA-Z]{%i,%i})\s'%(min, max), re.M)
-    res = set()
+    allwords = set()
     for f in fl:
         data = open(f, 'r')
         try:
-            res.update(set(match.findall('\n'.join(data))))
+            # Find all the words in this fill and add them to the set of all words so far
+            newwords = set(match.findall('\n'.join(data)))
+            allwords.update(newwords)
         finally:
             data.close()
-    return res
+    return allwords
 
 
 class pswrdgen:
@@ -168,7 +202,10 @@ class pswrdgen:
             print self.run()
 
     def _safe_generate(self):
-        """ """
+        """
+        Generate self.GENCOUNT passwords in one go haveing the wordlist loaded fresh
+        Display the words to the user or if none match explain this
+        """
         tmp = self.safe_generate(self.GENCOUNT)
         if len(tmp):
             for i in tmp:
@@ -302,22 +339,6 @@ class pswrdgen:
         else:
             return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
 
-    def generate(self, count):
-        """Generate count passwords"""
-        words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
-        if not len(words):
-            return []
-        else:
-            return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
-    
-    def safe_run(self):
-        """Generate one password"""
-        words = [s for s in bulkloadfilter(self.WORDFILELISTS, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
-        if not len(words):
-           return ''
-        else:
-            return self.modifyword(words[random.randrange(0, len(words))])
-
     def run(self):
         """Generate one password"""
         words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
@@ -327,7 +348,7 @@ class pswrdgen:
             return self.modifyword(words[random.randrange(0, len(words))])
 
     def modifyword(self, curword):
-        """ """
+        """ Given a word returns is with the current mutations applied"""
         wordlength = len(curword)
         
         # Replacement swaps here
