@@ -8,18 +8,19 @@ ADDCHAR::'01234567890-_!@$%^&*(),.<>+='
 ADDCOUNT::2
 endconfig"""
 
-### IRONPYTHON SUPPORT START ###
+### IRONPYTHON SUPPORT START #pswrdgeniron dependency ###
 import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.3.13'
-__author__ = "Joseph P. Socoloski III"
+__version__ = '0.4.1' #pswrdgeniron dependency
+__author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
 
 
 def getint(msg, default, low):
+    """"""
     while True:
         userinput = raw_input(msg+" (default=%i, minimum=%i) ?: "%(default, low))
         if userinput == '':
@@ -33,11 +34,13 @@ def getint(msg, default, low):
 
 
 def printline(length, div, line):
+    """"""
     pad = max(0, (length-len(line))/div)
     print "*%*s%-*s *" %(pad+1, ' ', length-pad, line)
 
 
 def box(length, justify, *lines):
+    """"""
     div = {'c':2, 'r':1}.get(justify, 100)
     print "*"*(length+4)
     for line in lines:
@@ -55,6 +58,7 @@ def box(length, justify, *lines):
 
 
 def run_menu(width, values, *options):
+    """"""
     while True:
         tmp = ['%i) %s'%(i+1, s[0]%values) for i, s in enumerate(options)]
         box(width, 'l', 'Choose one of the below:', *tmp+['%i) exit'%(len(options)+1)])
@@ -72,6 +76,7 @@ def run_menu(width, values, *options):
 
 
 def loadwords(fl):
+    """"""
     match = re.compile('^([a-zA-Z]{1,})\s', re.M)
     data = open(fl, 'r')
     try:
@@ -81,6 +86,7 @@ def loadwords(fl):
 
 
 def bulkloadfilter(fl, min, max):
+    """"""
     match = re.compile('^([a-zA-Z]{%i,%i})\s'%(min, max), re.M)
     res = set()
     for f in fl:
@@ -95,16 +101,16 @@ def bulkloadfilter(fl, min, max):
 class pswrdgen:
     """
     Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
+    #pswrdgeniron dependency
     """
     
     def __init__(self):
-        self.wordfilelists = []
-        self.wordnetlist = set()
         """
         Decides what the operating system is and chooses the install directory of WordNet
         Assign the default values to the instance before calling run()
-        NOTE: The platform handling still needs testing from non-Windows users 8/30/07
         """
+        self.WORDFILELISTS = [] #pswrdgeniron dependency
+        self.wordnetlist = set()
         if sys.platform[:3] == 'win': #Windows
             FS_ROOT = 'C:\\Program Files'
         elif sys.platform == 'cli':  # IronPython
@@ -122,7 +128,7 @@ class pswrdgen:
         self.loadsettings()
 
     def do_setup(self):
-        """Must leave method for pswrdgeniron backwards compatibility"""
+        """Must leave method for pswrdgeniron backwards compatibility #pswrdgeniron dependency"""
         self.__init__()
     
     def menu(self):
@@ -141,16 +147,20 @@ class pswrdgen:
                 ('Save all defaults/settings', self._savesettings))
                 
     def _input_count(self):
-        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1)
+        """ self.GENCOUNT """
+        self.GENCOUNT = getint("How many passwords do you wish to generate", self.GENCOUNT, 1) #pswrdgeniron dependency
     
     def _input_length(self):
-        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3)
-        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, self.MINLENGTH)
+        """ self.MINLENGTH, self.MAXLENGTH """
+        self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3) #pswrdgeniron dependency
+        self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, self.MINLENGTH) #pswrdgeniron dependency
     
     def _cap_count(self):
-        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1)
+        """ self.CAPLENGTH """
+        self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1) #pswrdgeniron dependency
     
     def _generate(self):
+        """ ?? used more than once? """
         for i in range(self.GENCOUNT):
             if not i:
                 print 'There are no words that match your requirement'
@@ -158,6 +168,7 @@ class pswrdgen:
             print self.run()
 
     def _safe_generate(self):
+        """ """
         tmp = self.safe_generate(self.GENCOUNT)
         if len(tmp):
             for i in tmp:
@@ -166,21 +177,24 @@ class pswrdgen:
             print 'There are no words that match your requirement'
 
     def _add_count(self):
-        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0)
+        """ self.ADDCOUNT """
+        self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0) #pswrdgeniron dependency
     
     def _input_punctuation(self):
+        """ self.ADDCHAR """
         try:
             userinput = raw_input("Type in your number and punctuation characters (default=%s)?: "%self.ADDCHAR)
             if userinput:
-                self.ADDCHAR = userinput
+                self.ADDCHAR = userinput #pswrdgeniron dependency
         except (NameError, SyntaxError):
             pass # Ignore invalid user input
     
     def _input_swaps(self):
+        """ self.SWAPS """
         try:
             userinput = input("Type in your swap rules dictionary(default=%s)?: "%self.SWAPS)
             if userinput:
-                self.SWAPS = dict(userinput)
+                self.SWAPS = dict(userinput) #pswrdgeniron dependency
         except (NameError, SyntaxError):
             pass # Ignore invalid user input
 
@@ -204,17 +218,19 @@ class pswrdgen:
         print "INSERT OPTIONS: " + str(self.ADDCHAR)
     
     def setnounfile(self, source):
-        """Set and load a text file, ignoring inherantly invalid words"""
+        """Set and load a text file, ignoring inherantly invalid words."""
         self.NOUNFILE = source
-        self.wordfilelists = [source]
+        self.WORDFILELISTS = [source]
         self.wordnetlist = loadwords(source)
     
     def addnounfile(self, source):
-        self.wordfilelists.append(source)
+        """ Add a path+filename to the list of word files. #pswrdgeniron dependency """
+        self.WORDFILELISTS.append(source)#pswrdgeniron dependency
         self.wordnetlist.update(loadwords(source))
     
     def removenounfile(self, source):
-        self.wordfilelists.remove(source)
+        """ Remove a path+filename from the list of word files. #pswrdgeniron dependency """
+        self.WORDFILELISTS.remove(source)#pswrdgeniron dependency
         # Technicly wrong, if/when * is droped in favor of safe_* can be droped
         self.wordnetlist.difference_update(loadwords(source))
 
@@ -222,6 +238,7 @@ class pswrdgen:
         """
         loadsettings() reads the variable lines after '\"\"\"config' in this file
         then assigns them to there variables. This allows for custom settings to be saved
+        #pswrdgeniron dependency
         """
         try:
             # IronPython WorkItemId=12283 workaround START...
@@ -244,10 +261,7 @@ class pswrdgen:
                     try:
                         self.SWAPS = eval(self.lineList[i+5].split('::')[1].strip())
                     except Exception, e:
-                        ## w/IPA4 exception:SyntaxError: unexpected token '<'
-                        ## asking IronPython team about this one
                         print e
-                        self.SWAPS = {}
                     self.ADDCHAR = self.lineList[i+6].split('::')[1].strip()
                     self.ADDCOUNT = int(self.lineList[i+7].split('::')[1].strip())
                     break
@@ -255,8 +269,9 @@ class pswrdgen:
             print 'Exception: ', x
             
     def _savesettings(self):
+        """ Save the settings to this module file #pswrdgeniron dependency """
         try:
-            # IronPython WorkItemId=12283 workaround START...
+            # IronPython WorkItemId=12283 workaround START...#pswrdgeniron dependency
             if sys.platform == 'cli':
                 FS_ROOT = 'C:\\Program Files'
                 thisfile = os.path.join( FS_ROOT, 'pswrdgeniron', 'pswrdgen.py')
@@ -281,7 +296,7 @@ class pswrdgen:
     
     def safe_generate(self, count):
         """Generate count passwords"""
-        words = [s for s in bulkloadfilter(self.wordfilelists, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
+        words = [s for s in bulkloadfilter(self.WORDFILELISTS, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
             return []
         else:
@@ -297,7 +312,7 @@ class pswrdgen:
     
     def safe_run(self):
         """Generate one password"""
-        words = [s for s in bulkloadfilter(self.wordfilelists, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
+        words = [s for s in bulkloadfilter(self.WORDFILELISTS, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
            return ''
         else:
@@ -312,6 +327,7 @@ class pswrdgen:
             return self.modifyword(words[random.randrange(0, len(words))])
 
     def modifyword(self, curword):
+        """ """
         wordlength = len(curword)
         
         # Replacement swaps here
