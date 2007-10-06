@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// pswrdgeniron v0.2.4
+// pswrdgeniron v0.4.0
 // Semantic Password generator that uses WordNet, random capitalization,
 // and character swapping. Prerequisite:WordNet
 // by Joseph P. Socoloski III
@@ -17,6 +17,7 @@
 //WordNet is licensed, copyrighted, and a registered trademark by 
 // Princeton University. http://wordnet.princeton.edu/
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
@@ -63,13 +64,24 @@ namespace pswrdgeniron
         /// <summary>
         /// Variables found in pswrdgen.py
         /// </summary>
-        public int MINLENGTH, MAXLENGTH, CAPLENGTH, GENCOUNT;
+        public int MINLENGTH, MAXLENGTH, CAPLENGTH, GENCOUNT, ADDCOUNT;
+
+        /// <summary>
+        /// Holds the current insert characters
+        /// </summary>
+        string ADDCHAR = "";
 
         /// <summary>
         /// Holds the current pswrdgen.py version number
         /// </summary>
         string currentversion = "";
- 
+
+        /// <summary>
+        /// Holds the word file paths
+        /// self.WORDFILELISTS = {}
+        /// </summary>
+        public List WORDFILELISTS = new List();
+
         #endregion Globals
 
         /// <summary>
@@ -103,14 +115,24 @@ namespace pswrdgeniron
         {
             try
             {
+                //Let check and make sure the user has Python24
+                if (!Directory.Exists("C:\\Python24\\Lib"))
+                {
+                    DialogResult dResult = MessageBox.Show("C:\\Python24\\Lib not found.\r\npswrdgeniron needs Python24 to run. Do you want to download Python24?", "Python 2.4 Not Found", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
+                    if (dResult == DialogResult.Yes)
+                    {
+                        System.Diagnostics.Process.Start(@"http://www.python.org/download/releases/2.4.4/");
+                    }
+                    else
+                        return;
+                }
                 //Start importing pswrdgen.py to IronPython
                 pe.ExecuteCommand("import sys");
-                pe.ExecuteCommand("sys.path.append(\"C:\\Python24\\Lib\")");
-                pe.ExecuteCommand("sys.path.append(\""+ Application.StartupPath +"\")");//add the windows installation path so no errors when using shortcuts
+                pe.AddToPath("C:\\Python24\\Lib");
+                pe.AddToPath(Application.StartupPath);//add the windows installation path so no errors when using shortcuts
                 pe.ExecuteCommand("import os");
                 pe.ExecuteCommand("import pswrdgen");
                 pe.ExecuteCommand("i = pswrdgen.pswrdgen()");
-                pe.ExecuteCommand("i.do_setup()");
 
                 //Get version number of current file
                 currentversion = pe.EvaluateAs<string>("pswrdgen.__version__");
@@ -130,10 +152,16 @@ namespace pswrdgeniron
                 MAXLENGTH = (int)pe.EvaluateAs<object>("i.MAXLENGTH");
                 CAPLENGTH = (int)pe.EvaluateAs<object>("i.CAPLENGTH");
                 GENCOUNT  = (int)pe.EvaluateAs<object>("i.GENCOUNT");
+                ADDCHAR = (string)pe.EvaluateAs<object>("i.ADDCHAR");
+                ADDCOUNT = (int)pe.EvaluateAs<object>("i.ADDCOUNT");
+                WORDFILELISTS = (List)pe.EvaluateAs<List>("i.WORDFILELISTS");
 
                 //*** Update the controls to display to user
                 //Display the current SWAP PythonDictionary ruleset
                 tbSwapSet.Text = SWAPS.ToString();
+
+                //Display the current ADDCHAR ruleset
+                tbInsertionChars.Text = ADDCHAR;
 
                 //Update cbMinLength and the Event will update cbMaxLength and cbCaps
                 int numbers = 3;
@@ -158,16 +186,33 @@ namespace pswrdgeniron
                     }
                     cbGencount.SelectedItem = GENCOUNT;
 
+                    //Populate the choices for AddCount
+                    numbers = 0;
+                    while (numbers <= 40)
+                    {
+                        cdAddCount.Items.Add(numbers);
+                        numbers = numbers + 1;
+                    }
+                    cdAddCount.SelectedItem = ADDCOUNT;
+
                     //Make bUpdate button enabled false since their were no changes
                     //  this must be done after its data population
                     bUpdate.Enabled = false;
+                    bSavesettings.Enabled = false;
                 }
                 else
                     MessageBox.Show("MINLENGTH > MAXLENGTH ; Can not populate cbMinLength");
+
+                //update the file list combobox
+                IEnumerator listenum = WORDFILELISTS.GetEnumerator();
+                while (listenum.MoveNext())
+                    cbWordFiles.Items.Add(listenum.Current);
+                cbWordFiles.SelectedIndex = 0;
+
             }
             catch (Exception ex)
             {
-                MessageBox.Show("bootstrap error:\r\n" + ex.Message);
+                MessageBox.Show("bootstrap error:\r\n" + ex.Message + "\r\n" + ex.InnerException);
             }
         }
 
@@ -191,38 +236,25 @@ namespace pswrdgeniron
             pe.ExecuteCommand("i.CAPLENGTH = interface_val");
             ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("interface_val", cbGencount.SelectedItem);
             pe.ExecuteCommand("i.GENCOUNT = interface_val");
+            ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("interface_val", cdAddCount.SelectedItem);
+            pe.ExecuteCommand("i.ADDCOUNT = interface_val");
+            ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("interface_val", tbInsertionChars.Text.Trim());
+            pe.ExecuteCommand("i.ADDCHAR = interface_val");
 
             //This was the only way I could succesfully update the SWAP PythonDictionary from a string
             SWAPS.Clear();
-            string[] kv = tbSwapSet.Text.Trim().Split(new char[] { '{', '}', ':', ',', '\'', ' ' }, StringSplitOptions.RemoveEmptyEntries);
-            List templist = List.MakeEmptyList(64);
-            for (int i = 0; i < (kv.Length); i++)
+            try
             {
-                //Just enter if i is odd
-                if ((i & 1) == 0)
-                {
-                    //Convert them all to char
-                    if (Helper.IsNumeric(kv[i]))
-                        templist.Add(Convert.ToInt32(kv[i]));
-                    else
-                        templist.Add(Convert.ToChar(kv[i]));
-
-                    //Convert them all to char
-                    if (Helper.IsNumeric(kv[i + 1]))
-                        templist.Add(Convert.ToInt32(kv[i + 1]));
-                    else
-                        templist.Add(Convert.ToChar(kv[i + 1]));
-                }
+                SWAPS = (PythonDictionary)pe.EvaluateAs<PythonDictionary>(tbSwapSet.Text.Trim()).Clone();
             }
-
-            for (int b = 0; b < (kv.Length); b++)
+            catch (Exception ex)
             {
-                //Just enter if i is odd
-                if ((b & 1) == 0)
-                {
-                    SWAPS.Add(templist[b], templist[b + 1]);
-                }
+                MessageBox.Show(ex.Message + "\r\nInvalid SwapSet. Autofixing to an empty swapset {}");
+                //Fix for user...
+                tbSwapSet.Text = "{}";
+                SWAPS = (PythonDictionary)pe.EvaluateAs<PythonDictionary>(tbSwapSet.Text.Trim()).Clone();
             }
+            
             //Now set the SWAP bridge
             ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("user_val", SWAPS);
             pe.ExecuteCommand("i.SWAPS = user_val");
@@ -232,8 +264,10 @@ namespace pswrdgeniron
 
             //Notify user...
             tbDisplay.AppendText("Password options successfully UPDATED!\r\n");
-        }
 
+            bUpdate.Enabled = false;
+            bSavesettings.Enabled = true;
+        }
 
         /// <summary>
         /// Run the script with the current vars
@@ -376,21 +410,104 @@ namespace pswrdgeniron
         {
             //Make bUpdate button enabled since their were some changes
             bUpdate.Enabled = true;
+            bSavesettings.Enabled = false;
         }
 
         private void cbCaps_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Make bUpdate button enabled since their were some changes
             bUpdate.Enabled = true;
+            bSavesettings.Enabled = false;
         }
 
         private void cbGencount_SelectedIndexChanged(object sender, EventArgs e)
         {
             //Make bUpdate button enabled since their were some changes
             bUpdate.Enabled = true;
+            bSavesettings.Enabled = false;
         }
 
+        private void cdAddCount_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            //Make bUpdate button enabled since their were some changes
+            bUpdate.Enabled = true;
+            bSavesettings.Enabled = false;
+        }
+
+        private void tbSwapSet_TextChanged(object sender, EventArgs e)
+        {
+            //Make bUpdate button enabled since their were some changes
+            bUpdate.Enabled = true;
+            bSavesettings.Enabled = false;
+        }
+
+        private void tbInsertionChars_TextChanged(object sender, EventArgs e)
+        {
+            //Make bUpdate button enabled since their were some changes
+            bUpdate.Enabled = true;
+            bSavesettings.Enabled = false;
+        }
+
+        private void bSavesettings_Click(object sender, EventArgs e)
+        {
+            pe.ExecuteCommand("i._savesettings()");
+            bSavesettings.Enabled = false;
+        }
         #endregion Events
+
+        /// <summary>
+        /// Browse to a word file for random word generation
+        /// File must one word in the beginning of each line (no spaces)
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void btBrowse_Click(object sender, EventArgs e)
+        {
+            //Browse to the first.py sample file and import it
+            OpenFileDialog ofd = new OpenFileDialog();
+            ofd.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+            ofd.ShowDialog();
+
+            //Now set the WORDFILELISTS bridge
+            ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("user_val", Path.GetFullPath(ofd.FileName));
+            pe.ExecuteCommand("i.addnounfile(user_val)");
+
+            //Add the users path to the internal list, bUpdate_Click updates IPEngine var
+            WORDFILELISTS.Add(Path.GetFullPath(ofd.FileName));
+            cbWordFiles.Items.Add(Path.GetFullPath(ofd.FileName));
+            cbWordFiles.Update();
+        }
+
+        /// <summary>
+        /// Remove the selected word file
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void button1_Click(object sender, EventArgs e)
+        {
+                // Displays the MessageBox.
+                DialogResult result = MessageBox.Show("Are you sure you want to remove\r\n" + cbWordFiles.SelectedItem.ToString(), "Confirm Remove", MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question );
+                if (result == DialogResult.Yes)
+                {
+                    if (cbWordFiles.Items.Count != 1)
+                    {
+                        //Now set the WORDFILELISTS bridge
+                        ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("user_val", cbWordFiles.SelectedItem);
+                        pe.ExecuteCommand("i.removenounfile(user_val)");
+
+                        cbWordFiles.Items.RemoveAt(cbWordFiles.SelectedIndex);//  .RemoveAt(cbWordFiles.SelectedIndex);
+                        cbWordFiles.SelectedIndex = 0;
+                        cbWordFiles.Update();
+
+                    }
+                    else
+                    {
+                        MessageBox.Show("You can not remove the only word file!");
+                    }
+                }
+        }
+
+
     }
 
     #region Common Class

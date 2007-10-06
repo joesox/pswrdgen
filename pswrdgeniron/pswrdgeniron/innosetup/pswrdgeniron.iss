@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=pswrdgeniron
-AppVerName=pswrdgen 0.2.4
+AppVerName=pswrdgen 0.4.0
 AppPublisher=Joseph P. Socoloski III
 AppPublisherURL=http://pswrdgen.googlecode.com
 AppSupportURL=http://pswrdgen.googlecode.com
@@ -31,6 +31,7 @@ Source: "C:\Documents and Settings\Joseph\My Documents\Visual Studio 2005\Projec
 Source: "C:\Documents and Settings\Joseph\My Documents\Visual Studio 2005\Projects\pswrdgeniron\pswrdgeniron\bin\Release\IronPython.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Documents and Settings\Joseph\My Documents\Visual Studio 2005\Projects\pswrdgeniron\pswrdgeniron\bin\Release\IronPython.Modules.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "C:\Documents and Settings\Joseph\My Documents\Visual Studio 2005\Projects\pswrdgeniron\pswrdgeniron\bin\Release\Microsoft.Scripting.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "C:\Documents and Settings\Joseph\My Documents\Visual Studio 2005\Projects\pswrdgeniron\pswrdgeniron\innosetup\license.txt"; DestDir: "{app}"; Flags: ignoreversion
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [INI]
