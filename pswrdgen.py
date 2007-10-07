@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, random, re, glob
-__version__ = '0.4.3' #pswrdgeniron dependency
+__version__ = '0.4.4' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -121,7 +121,7 @@ def bulkloadfilter(filelist, min, max):
     # Define what a word is (using the above def) in a RegExp
     match = re.compile('^([a-zA-Z]{%i,%i})\s'%(min, max), re.M)
     allwords = set()
-    for f in fl:
+    for f in filelist:
         data = open(f, 'r')
         try:
             # Find all the words in this fill and add them to the set of all words so far
@@ -193,12 +193,12 @@ class pswrdgen:
         """ self.CAPLENGTH """
         self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1) #pswrdgeniron dependency
 
-    def __generate(self):
+    def _generate(self):
         """
         Generate self.GENCOUNT passwords in one go haveing the wordlist loaded fresh
         Display the words to the user or if none match explain this
         """
-        tmp = self.safe_generate(self.GENCOUNT)
+        tmp = self.generate(self.GENCOUNT)
         if len(tmp):
             for i in tmp:
                 print i
@@ -323,7 +323,7 @@ class pswrdgen:
         except NameError, x:
             print '_savesettings Exception: ', x
     
-    def safe_generate(self, count):
+    def generate(self, count):
         """Generate count passwords"""
         words = [s for s in bulkloadfilter(self.WORDFILELISTS, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
         if not len(words):
