@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, os.path, random, re, glob
-__version__ = '0.4.5' #pswrdgeniron dependency
+__version__ = '0.4.6' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -248,7 +248,7 @@ class pswrdgen:
     
     def addnounfile(self, source):
         """ Add a path+filename to the list of word files. #pswrdgeniron dependency """
-        if os.path.exists(source):
+        if os.path.exists(source) and source not in self.WORDFILELISTS:
             self.WORDFILELISTS.append(source)#pswrdgeniron dependency
             self.wordnetlist.update(loadwords(source))
     
@@ -324,7 +324,7 @@ class pswrdgen:
         if not len(words):
             return []
         else:
-            return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(self.GENCOUNT)]
+            return [self.modifyword(random.choice(words)) for i in range(self.GENCOUNT)]
 
     def run(self):
         """Generate one password #pswrdgeniron dependency"""
@@ -332,7 +332,7 @@ class pswrdgen:
         if not len(words):
             return ''
         else:
-            return self.modifyword(words[random.randrange(0, len(words))])
+            return self.modifyword(random.choice(words))
 
     def modifyword(self, curword):
         """ Given a word returns is with the current mutations applied"""
@@ -354,8 +354,8 @@ class pswrdgen:
         # Add extra characters
         for i in range(self.ADDCOUNT):
             randnum = random.randrange(0, len(wordcharlist))
-            randchar = random.randrange(0, len(self.ADDCHAR))
-            wordcharlist = wordcharlist[:randnum] + [self.ADDCHAR[randchar]] + wordcharlist[randnum:]
+            randchar = random.choice(self.ADDCHAR)
+            wordcharlist = wordcharlist[:randnum] + [randchar] + wordcharlist[randnum:]
 
         # Recombine and return
         return ''.join(wordcharlist)
