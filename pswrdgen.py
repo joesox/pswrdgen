@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, os.path, random, re, glob
-__version__ = '0.4.7' #pswrdgeniron dependency
+__version__ = '0.4.8' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -95,27 +95,6 @@ def run_menu(width, values, *options):
                 break
             elif 0 < choice <= len(options):
                 options[choice-1][1]()
-
-
-def bulkloadfilter(filelist, min, max):
-    """
-        Build a set of all valid words in all files in the filelist
-        A word is a sequenc of <min> to <max> letters at the start of the line followed
-        by a white space.
-        Store and return words in a set to avoid duplication
-    """
-    # Define what a word is (using the above def) in a RegExp
-    match = re.compile('^([a-zA-Z]{%i,%i})\s'%(min, max), re.M)
-    allwords = set()
-    for f in filelist:
-        data = open(f, 'r')
-        try:
-            # Find all the words in this fill and add them to the set of all words so far
-            newwords = set(match.findall('\n'.join(data)))
-            allwords.update(newwords)
-        finally:
-            data.close()
-    return allwords
 
 
 class pswrdgen:
@@ -335,12 +314,33 @@ class pswrdgen:
         except NameError, x:
             print '_savesettings Exception: ', x
     
+    def updatecache(self):
+        """
+        Build a list of all valid words in all files in the self.WORDFILELISTS and store in self.cache
+        Each word appears only once in the list
+        A word is a sequenc of x letters at the start of the line followed by a white space
+        with the contraint self.MINLENGTH <= x-self.ADDCOUNT <= self.MAXLENGTH 
+        """
+        # Define what a word is (using the above def) in a RegExp
+        low = self.MINLENGTH-self.ADDCOUNT
+        high = self.MAXLENGTH-self.ADDCOUNT
+        match = re.compile('^([a-zA-Z]{%i,%i})\s'%(low, high), re.M)
+
+        allwords = set()    # Store the collection in a set to avoid duplicates
+        for f in self.WORDFILELISTS:
+            data = open(f, 'r')
+            try:
+                # Find all the words in this file and add them to the set of all words so far
+                newwords = set(match.findall('\n'.join(data)))
+                allwords.update(newwords)
+            finally:
+                data.close()
+        self.cache = list(allwords) # Convert from a set to a list for indexing
+
     def run(self):
         """Generate one password #pswrdgeniron dependency"""
         if not self.cache:
-            low = self.MINLENGTH-self.ADDCOUNT
-            high = self.MAXLENGTH-self.ADDCOUNT
-            self.cache = [s for s in bulkloadfilter(self.WORDFILELISTS, low, high)]
+            self.updatecache()
         if not len(self.cache):
             return ''
         else:
