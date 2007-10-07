@@ -1,0 +1,11 @@
+#labels Featured,Phase-Implementation
+= Development Introduction =
+
+pswrdgen and pswrdgeniron is now on a quarterly development schedule since most major features are now implemented.  If you are interested in participating in this project email joesox.
+
+== Development Schedule ==
+
+||DATE||PLANNED||
+||10-07-2007 11:59pm||End of active development||
+||01-18-2008 12:00am||Start of active development. Work on issues||
+||01-20-2008 11:59pm||End of active development.|| 
