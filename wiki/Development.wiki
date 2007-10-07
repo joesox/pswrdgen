@@ -3,6 +3,27 @@
 
 pswrdgen and pswrdgeniron is now on a quarterly development schedule since most major features are now implemented.  If you are interested in participating in this project email joesox.
 
+== Developer Standards ==
+We ask that all developers use the following guidelines to ensure stable versions and not break any versions of pswrdgeniron.
+
+pswrdgen.py development:
+1)Work with a copy of pswrdgen.py
+2)Thoroughly test your working copy.
+3)Repeat step 1 and 2 until no bugs.
+4)Commit changes.
+5)Update issue trackers.
+6)Make sure joesox posts new epydoc version.
+
+pswrdgeniron development:
+1)Work with a copy of the pswrdgeniron Visual Studio project.
+2)Make sure you are using the latest version of pswrdgen.py.
+2)Thoroughly test your working copy.
+3)Repeat step 1 and 2 until no bugs.
+4)Commit changes.
+5)Update issue trackers.
+6)If needed, make sure joesox posts new epydoc version.
+7)Make sure joesox updates pswrdgeniron's Codeproject website
+
 == Development Schedule ==
 
 ||DATE||PLANNED||
