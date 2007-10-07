@@ -3,7 +3,7 @@
 
 [Setup]
 AppName=pswrdgeniron
-AppVerName=pswrdgen 0.4.0
+AppVerName=pswrdgen 0.4.1
 AppPublisher=Joseph P. Socoloski III
 AppPublisherURL=http://pswrdgen.googlecode.com
 AppSupportURL=http://pswrdgen.googlecode.com

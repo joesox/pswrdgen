@@ -32,6 +32,10 @@ namespace pswrdgeniron
             this.bExit = new System.Windows.Forms.Button();
             this.tbDisplay = new System.Windows.Forms.TextBox();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
+            this.groupBox2 = new System.Windows.Forms.GroupBox();
+            this.button1 = new System.Windows.Forms.Button();
+            this.btBrowse = new System.Windows.Forms.Button();
+            this.cbWordFiles = new System.Windows.Forms.ComboBox();
             this.bSavesettings = new System.Windows.Forms.Button();
             this.cdAddCount = new System.Windows.Forms.ComboBox();
             this.label7 = new System.Windows.Forms.Label();
@@ -50,10 +54,6 @@ namespace pswrdgeniron
             this.tbSwapSet = new System.Windows.Forms.TextBox();
             this.btRun = new System.Windows.Forms.Button();
             this.btDownload = new System.Windows.Forms.Button();
-            this.cbWordFiles = new System.Windows.Forms.ComboBox();
-            this.groupBox2 = new System.Windows.Forms.GroupBox();
-            this.button1 = new System.Windows.Forms.Button();
-            this.btBrowse = new System.Windows.Forms.Button();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
             this.SuspendLayout();
@@ -113,6 +113,55 @@ namespace pswrdgeniron
             this.groupBox1.TabIndex = 2;
             this.groupBox1.TabStop = false;
             this.groupBox1.Text = "Password Generator Options...";
+            // 
+            // groupBox2
+            // 
+            this.groupBox2.Controls.Add(this.button1);
+            this.groupBox2.Controls.Add(this.btBrowse);
+            this.groupBox2.Controls.Add(this.cbWordFiles);
+            this.groupBox2.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.groupBox2.Location = new System.Drawing.Point(9, 242);
+            this.groupBox2.Name = "groupBox2";
+            this.groupBox2.Size = new System.Drawing.Size(453, 83);
+            this.groupBox2.TabIndex = 18;
+            this.groupBox2.TabStop = false;
+            this.groupBox2.Text = "Current Word Files in Use...";
+            // 
+            // button1
+            // 
+            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.button1.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button1.Location = new System.Drawing.Point(122, 53);
+            this.button1.Name = "button1";
+            this.button1.Size = new System.Drawing.Size(208, 22);
+            this.button1.TabIndex = 20;
+            this.button1.Text = "Remove selected word file";
+            this.button1.UseVisualStyleBackColor = true;
+            this.button1.Click += new System.EventHandler(this.button1_Click);
+            // 
+            // btBrowse
+            // 
+            this.btBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+                        | System.Windows.Forms.AnchorStyles.Right)));
+            this.btBrowse.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btBrowse.Location = new System.Drawing.Point(366, 25);
+            this.btBrowse.Name = "btBrowse";
+            this.btBrowse.Size = new System.Drawing.Size(71, 22);
+            this.btBrowse.TabIndex = 19;
+            this.btBrowse.Text = "Browse...";
+            this.btBrowse.UseVisualStyleBackColor = true;
+            this.btBrowse.Click += new System.EventHandler(this.btBrowse_Click);
+            // 
+            // cbWordFiles
+            // 
+            this.cbWordFiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cbWordFiles.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cbWordFiles.FormattingEnabled = true;
+            this.cbWordFiles.Location = new System.Drawing.Point(8, 25);
+            this.cbWordFiles.Name = "cbWordFiles";
+            this.cbWordFiles.Size = new System.Drawing.Size(352, 22);
+            this.cbWordFiles.TabIndex = 17;
             // 
             // bSavesettings
             // 
@@ -293,55 +342,6 @@ namespace pswrdgeniron
             this.btDownload.Text = "Check for pswrdgen.py update";
             this.btDownload.UseVisualStyleBackColor = true;
             this.btDownload.Click += new System.EventHandler(this.btDownload_Click);
-            // 
-            // cbWordFiles
-            // 
-            this.cbWordFiles.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbWordFiles.Font = new System.Drawing.Font("Arial", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cbWordFiles.FormattingEnabled = true;
-            this.cbWordFiles.Location = new System.Drawing.Point(8, 25);
-            this.cbWordFiles.Name = "cbWordFiles";
-            this.cbWordFiles.Size = new System.Drawing.Size(352, 22);
-            this.cbWordFiles.TabIndex = 17;
-            // 
-            // groupBox2
-            // 
-            this.groupBox2.Controls.Add(this.button1);
-            this.groupBox2.Controls.Add(this.btBrowse);
-            this.groupBox2.Controls.Add(this.cbWordFiles);
-            this.groupBox2.Font = new System.Drawing.Font("Arial", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.groupBox2.Location = new System.Drawing.Point(9, 242);
-            this.groupBox2.Name = "groupBox2";
-            this.groupBox2.Size = new System.Drawing.Size(453, 83);
-            this.groupBox2.TabIndex = 18;
-            this.groupBox2.TabStop = false;
-            this.groupBox2.Text = "Current Word Files in Use...";
-            // 
-            // button1
-            // 
-            this.button1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.button1.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.button1.Location = new System.Drawing.Point(190, 53);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(156, 22);
-            this.button1.TabIndex = 20;
-            this.button1.Text = "Remove selected word file";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
-            // 
-            // btBrowse
-            // 
-            this.btBrowse.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
-                        | System.Windows.Forms.AnchorStyles.Right)));
-            this.btBrowse.Font = new System.Drawing.Font("Arial", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btBrowse.Location = new System.Drawing.Point(366, 25);
-            this.btBrowse.Name = "btBrowse";
-            this.btBrowse.Size = new System.Drawing.Size(71, 22);
-            this.btBrowse.TabIndex = 19;
-            this.btBrowse.Text = "Browse...";
-            this.btBrowse.UseVisualStyleBackColor = true;
-            this.btBrowse.Click += new System.EventHandler(this.btBrowse_Click);
             // 
             // Form1
             // 

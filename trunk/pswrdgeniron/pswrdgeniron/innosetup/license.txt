@@ -1,5 +1,5 @@
 ////////////////////////////////////////////////////////////////////////////
-// pswrdgeniron v0.4.0
+// pswrdgeniron v0.4.1
 // Semantic Password generator that uses WordNet, random capitalization,
 // and character swapping. Prerequisite:WordNet
 // by Joseph P. Socoloski III
