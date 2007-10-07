@@ -1,26 +1,29 @@
 """config CONFIGURATION SETTINGS
 GENCOUNT::10
 MINLENGTH::8
-MAXLENGTH::16
+MAXLENGTH::8
 CAPLENGTH::2
-SWAPS::{'h': 4, 's': 5}
+SWAPS::{'o': 0, 'i': 1}
 ADDCHAR::'01234567890-_!@$%^&*(),.<>+='
-ADDCOUNT::2
+ADDCOUNT::0
 endconfig"""
 
 ### IRONPYTHON SUPPORT START #pswrdgeniron dependency ###
 import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
-import os, random, re, glob
-__version__ = '0.4.1' #pswrdgeniron dependency
+import os, os.path, random, re, glob
+__version__ = '0.4.8' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
 
 
 def getint(msg, default, low):
-    """"""
+    """
+        Repeatedly ask the user the question <msg> until they
+        provide an intger <= low or an empty line when the default is used
+    """
     while True:
         userinput = raw_input(msg+" (default=%i, minimum=%i) ?: "%(default, low))
         if userinput == '':
@@ -34,13 +37,26 @@ def getint(msg, default, low):
 
 
 def printline(length, div, line):
-    """"""
+    """
+        Print a line of length <length> with a * at each end and <line> in the body
+        <div> determins where the line should be justified
+        1 right justified
+        2 centered
+        use any large number for left
+    """
     pad = max(0, (length-len(line))/div)
     print "*%*s%-*s *" %(pad+1, ' ', length-pad, line)
 
 
 def box(length, justify, *lines):
-    """"""
+    """
+        Disaply <lines> in a box of *'s width <length>
+        Split each line at < >  if to long
+        Justify gives the overall text justification
+            c: center
+            r: right
+            default left
+    """
     div = {'c':2, 'r':1}.get(justify, 100)
     print "*"*(length+4)
     for line in lines:
@@ -58,7 +74,13 @@ def box(length, justify, *lines):
 
 
 def run_menu(width, values, *options):
-    """"""
+    """
+        Create a menu of width <width> from a tuple of one description, function/method per option
+        Add an exit method at the end of the list
+        Display with each option being given an integer key in order starting from 1
+        Repeatedly ask for an option and call the linked function untill asked to stop
+        The menu can also be left by entering 'exit'
+    """
     while True:
         tmp = ['%i) %s'%(i+1, s[0]%values) for i, s in enumerate(options)]
         box(width, 'l', 'Choose one of the below:', *tmp+['%i) exit'%(len(options)+1)])
@@ -75,29 +97,6 @@ def run_menu(width, values, *options):
                 options[choice-1][1]()
 
 
-def loadwords(fl):
-    """"""
-    match = re.compile('^([a-zA-Z]{1,})\s', re.M)
-    data = open(fl, 'r')
-    try:
-        return set(match.findall('\n'.join(data)))
-    finally:
-        data.close()
-
-
-def bulkloadfilter(fl, min, max):
-    """"""
-    match = re.compile('^([a-zA-Z]{%i,%i})\s'%(min, max), re.M)
-    res = set()
-    for f in fl:
-        data = open(f, 'r')
-        try:
-            res.update(set(match.findall('\n'.join(data))))
-        finally:
-            data.close()
-    return res
-
-
 class pswrdgen:
     """
     Semantic Password generator that uses WordNet 2.1, random capitalization, and character swapping.
@@ -110,6 +109,7 @@ class pswrdgen:
         Assign the default values to the instance before calling run()
         """
         self.WORDFILELISTS = [] #pswrdgeniron dependency
+        self.cache = False
         self.wordnetlist = set()
         if sys.platform[:3] == 'win': #Windows
             FS_ROOT = 'C:\\Program Files'
@@ -123,7 +123,7 @@ class pswrdgen:
         a = os.path.join( FS_ROOT, 'WordNet', '[0-9].[0-9]', 'dict', 'index.noun')
         b = os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-[0-9].[0-9]', 'dict', 'index.noun')
         WORDNETPATH = (glob.glob(a) or glob.glob(b))[0]
-        self.setnounfile(WORDNETPATH)
+        self.addnounfile(WORDNETPATH)
         #Read the previous settings and load into vars
         self.loadsettings()
 
@@ -135,13 +135,15 @@ class pswrdgen:
         """Main Menu loop"""
         box(40, 'c', 'pswrdgen', __version__, __url__, '-'*40, __doc__)
         run_menu(70, self.__dict__, 
-                ('Generate %(GENCOUNT)i password(s)', self._safe_generate),
+                ('Generate %(GENCOUNT)i password(s)', self._generate),
                 ('Change generate count (now %(GENCOUNT)i)', self._input_count),
                 ('Change password length (now %(MINLENGTH)i<=length<=%(MAXLENGTH)i)', self._input_length),
                 ('Change capitalisation count (now %(CAPLENGTH)i)', self._cap_count),
                 ('Change swap dictionary (now %(SWAPS)s)', self._input_swaps),
                 ('Change number/punctuation insertion (now %(ADDCOUNT)s)', self._add_count),
                 ('Change number/punctuation list (now %(ADDCHAR)s)', self._input_punctuation),
+                ('Add new word file', self._add_file),
+                ('Remove word file', self._drop_file),
                 ('Change all defaults', self.changedefaults),
                 ('Display defaults', self.printdefaults),
                 ('Save all defaults/settings', self._savesettings))
@@ -154,31 +156,16 @@ class pswrdgen:
         """ self.MINLENGTH, self.MAXLENGTH """
         self.MINLENGTH = getint("What is the minimum length of your password", self.MINLENGTH, 3) #pswrdgeniron dependency
         self.MAXLENGTH = getint("What is the maximum length of your password ", self.MAXLENGTH, self.MINLENGTH) #pswrdgeniron dependency
+        self.cache = False
     
     def _cap_count(self):
         """ self.CAPLENGTH """
         self.CAPLENGTH = getint("How many capital letters in your password ", self.CAPLENGTH, 1) #pswrdgeniron dependency
-    
-    def _generate(self):
-        """ ?? used more than once? """
-        for i in range(self.GENCOUNT):
-            if not i:
-                print 'There are no words that match your requirement'
-                break
-            print self.run()
-
-    def _safe_generate(self):
-        """ """
-        tmp = self.safe_generate(self.GENCOUNT)
-        if len(tmp):
-            for i in tmp:
-                print i
-        else:
-            print 'There are no words that match your requirement'
 
     def _add_count(self):
         """ self.ADDCOUNT """
         self.ADDCOUNT = getint("How many extra numbers/punctuation in your password ", self.ADDCOUNT, 0) #pswrdgeniron dependency
+        self.cache = False
     
     def _input_punctuation(self):
         """ self.ADDCHAR """
@@ -207,32 +194,68 @@ class pswrdgen:
         self._add_count()
         self._input_swaps()
 
+    def _add_file(self):
+        """ text interface for adding a new word file """
+        print
+        print 'Current word files:'
+        for s in self.WORDFILELISTS:
+            print '\t%s'%s
+        print
+        userinput = raw_input("What file do you want to add: ").strip()
+        if userinput:
+            self.addnounfile(userinput)
+            self.cache = False
+
+    def _drop_file(self):
+        """ text interface for dropping a new word file """
+        print
+        print 'Current word files:'
+        for i, s in enumerate(self.WORDFILELISTS):
+            print '\t%2i\t%s'%(i+1, s)
+        print
+        userinput = getint("Which file do you want to remove (0 or empty line to escape): ", 0, 0)
+        if userinput:
+            self.removenounfile(self.WORDFILELISTS[userinput-1])
+            self.cache = False
+    
+    def _generate(self):
+        """
+        Generate self.GENCOUNT passwords in one go haveing the wordlist loaded fresh
+        Display the words to the user or if none match explain this
+        """
+        for i in range(self.GENCOUNT):
+            pswrd = self.run()
+            if not pswrd:
+                print 'There are no words that match your requirement'
+                break
+            print pswrd
+
     def printdefaults(self):
         """Print the configuration defaults to the console"""
-        print "NOUNFILE: " + self.NOUNFILE
         print "MINLENGTH: " + str(self.MINLENGTH)
         print "MAXLENGTH: " + str(self.MAXLENGTH)
         print "CAPLENGTH: " + str(self.CAPLENGTH)
         print "SWAPS: " + str(self.SWAPS)
         print "INSERT No.: " + str(self.ADDCOUNT)
         print "INSERT OPTIONS: " + str(self.ADDCHAR)
-    
-    def setnounfile(self, source):
-        """Set and load a text file, ignoring inherantly invalid words."""
-        self.NOUNFILE = source
-        self.WORDFILELISTS = [source]
-        self.wordnetlist = loadwords(source)
+        print
+        print 'Current word files:'
+        for s in self.WORDFILELISTS:
+            print '\t%s'%s
+        print
+
     
     def addnounfile(self, source):
         """ Add a path+filename to the list of word files. #pswrdgeniron dependency """
-        self.WORDFILELISTS.append(source)#pswrdgeniron dependency
-        self.wordnetlist.update(loadwords(source))
+        if os.path.exists(source) and source not in self.WORDFILELISTS:
+            self.WORDFILELISTS.append(source)#pswrdgeniron dependency
+            self.cache = False
     
     def removenounfile(self, source):
         """ Remove a path+filename from the list of word files. #pswrdgeniron dependency """
-        self.WORDFILELISTS.remove(source)#pswrdgeniron dependency
-        # Technicly wrong, if/when * is droped in favor of safe_* can be droped
-        self.wordnetlist.difference_update(loadwords(source))
+        if source in self.WORDFILELISTS:
+            self.WORDFILELISTS.remove(source)#pswrdgeniron dependency
+            self.cache = False
 
     def loadsettings(self):
         """
@@ -258,10 +281,7 @@ class pswrdgen:
                     self.MINLENGTH = int(self.lineList[i+2].split('::')[1].strip())
                     self.MAXLENGTH = int(self.lineList[i+3].split('::')[1].strip())
                     self.CAPLENGTH = int(self.lineList[i+4].split('::')[1].strip())
-                    try:
-                        self.SWAPS = eval(self.lineList[i+5].split('::')[1].strip())
-                    except Exception, e:
-                        print e
+                    self.SWAPS = eval(self.lineList[i+5].split('::')[1].strip())
                     self.ADDCHAR = self.lineList[i+6].split('::')[1].strip()
                     self.ADDCOUNT = int(self.lineList[i+7].split('::')[1].strip())
                     break
@@ -294,40 +314,40 @@ class pswrdgen:
         except NameError, x:
             print '_savesettings Exception: ', x
     
-    def safe_generate(self, count):
-        """Generate count passwords"""
-        words = [s for s in bulkloadfilter(self.WORDFILELISTS, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
-        if not len(words):
-            return []
-        else:
-            return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
+    def updatecache(self):
+        """
+        Build a list of all valid words in all files in the self.WORDFILELISTS and store in self.cache
+        Each word appears only once in the list
+        A word is a sequenc of x letters at the start of the line followed by a white space
+        with the contraint self.MINLENGTH <= x-self.ADDCOUNT <= self.MAXLENGTH 
+        """
+        # Define what a word is (using the above def) in a RegExp
+        low = self.MINLENGTH-self.ADDCOUNT
+        high = self.MAXLENGTH-self.ADDCOUNT
+        match = re.compile('^([a-zA-Z]{%i,%i})\s'%(low, high), re.M)
 
-    def generate(self, count):
-        """Generate count passwords"""
-        words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
-        if not len(words):
-            return []
-        else:
-            return [self.modifyword(words[random.randrange(0, len(words))]) for i in range(count)]
-    
-    def safe_run(self):
-        """Generate one password"""
-        words = [s for s in bulkloadfilter(self.WORDFILELISTS, self.MINLENGTH-self.ADDCOUNT, self.MAXLENGTH-self.ADDCOUNT)]
-        if not len(words):
-           return ''
-        else:
-            return self.modifyword(words[random.randrange(0, len(words))])
+        allwords = set()    # Store the collection in a set to avoid duplicates
+        for f in self.WORDFILELISTS:
+            data = open(f, 'r')
+            try:
+                # Find all the words in this file and add them to the set of all words so far
+                newwords = set(match.findall('\n'.join(data)))
+                allwords.update(newwords)
+            finally:
+                data.close()
+        self.cache = list(allwords) # Convert from a set to a list for indexing
 
     def run(self):
-        """Generate one password"""
-        words = [s for s in self.wordnetlist if self.MINLENGTH <= len(s)-self.ADDCOUNT <= self.MAXLENGTH]
-        if not len(words):
+        """Generate one password #pswrdgeniron dependency"""
+        if not self.cache:
+            self.updatecache()
+        if not len(self.cache):
             return ''
         else:
-            return self.modifyword(words[random.randrange(0, len(words))])
+            return self.modifyword(random.choice(self.cache))
 
     def modifyword(self, curword):
-        """ """
+        """ Given a word returns is with the current mutations applied"""
         wordlength = len(curword)
         
         # Replacement swaps here
@@ -346,8 +366,8 @@ class pswrdgen:
         # Add extra characters
         for i in range(self.ADDCOUNT):
             randnum = random.randrange(0, len(wordcharlist))
-            randchar = random.randrange(0, len(self.ADDCHAR))
-            wordcharlist = wordcharlist[:randnum] + [self.ADDCHAR[randchar]] + wordcharlist[randnum:]
+            randchar = random.choice(self.ADDCHAR)
+            wordcharlist = wordcharlist[:randnum] + [randchar] + wordcharlist[randnum:]
 
         # Recombine and return
         return ''.join(wordcharlist)

@@ -1,10 +1,10 @@
 ////////////////////////////////////////////////////////////////////////////
-// pswrdgeniron v0.4.0
+// pswrdgeniron v0.4.1
 // Semantic Password generator that uses WordNet, random capitalization,
 // and character swapping. Prerequisite:WordNet
 // by Joseph P. Socoloski III
 // Copyright 2007. All Rights Reserved.
-// http://pswrdgen..googlecode.com
+// http://pswrdgen.googlecode.com
 // 
 //LICENSE:
 //BY DOWNLOADING AND USING, YOU AGREE TO THE FOLLOWING TERMS:
@@ -463,19 +463,27 @@ namespace pswrdgeniron
         /// <param name="e"></param>
         private void btBrowse_Click(object sender, EventArgs e)
         {
-            //Browse to the first.py sample file and import it
-            OpenFileDialog ofd = new OpenFileDialog();
-            ofd.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
-            ofd.ShowDialog();
+            try
+            {
+                //Browse to the first.py sample file and import it
+                OpenFileDialog ofd = new OpenFileDialog();
+                ofd.Filter = "Text files (*.txt)|*.txt|All files (*.*)|*.*";
+                ofd.ShowDialog();
 
-            //Now set the WORDFILELISTS bridge
-            ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("user_val", Path.GetFullPath(ofd.FileName));
-            pe.ExecuteCommand("i.addnounfile(user_val)");
+                //Now set the WORDFILELISTS bridge
+                ScriptDomainManager.CurrentManager.Host.DefaultModule.SetVariable("user_val", Path.GetFullPath(ofd.FileName));
+                pe.ExecuteCommand("i.addnounfile(user_val)");
 
-            //Add the users path to the internal list, bUpdate_Click updates IPEngine var
-            WORDFILELISTS.Add(Path.GetFullPath(ofd.FileName));
-            cbWordFiles.Items.Add(Path.GetFullPath(ofd.FileName));
-            cbWordFiles.Update();
+                //Add the users path to the internal list, bUpdate_Click updates IPEngine var
+                WORDFILELISTS.Add(Path.GetFullPath(ofd.FileName));
+                cbWordFiles.Items.Add(Path.GetFullPath(ofd.FileName));
+                cbWordFiles.Update();
+            }
+            catch (Exception)
+            {
+                //Do nothing if cancelled
+            }
+
         }
 
         /// <summary>
