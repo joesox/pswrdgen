@@ -25,6 +25,7 @@ We ask that all developers use the following guidelines to ensure stable version
   # Make sure joesox updates pswrdgeniron's Codeproject website
 
 == Development Schedule ==
+[http://www.google.com/calendar/render?cid=td8lqrmuos8gkpcl2pfga6qtjk%40group.calendar.google.com http://www.google.com/calendar/images/ext/gc_button1_en.gif]
 
 ||DATE||PLANNED||
 ||10-07-2007 11:59pm||End of active development||
