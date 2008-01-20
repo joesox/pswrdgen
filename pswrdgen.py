@@ -14,7 +14,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, os.path, random, re, glob
-__version__ = '0.4.10' #pswrdgeniron dependency
+__version__ = '0.4.11' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -112,7 +112,7 @@ class pswrdgen:
         #Read the previous settings and load into vars
         self.loadsettings()
 
-    def _find_wordnet(self)
+    def _find_wordnet(self):
         self.WORDFILELISTS = [] #pswrdgeniron dependency
         self.cache = False
         self.wordnetlist = set()
