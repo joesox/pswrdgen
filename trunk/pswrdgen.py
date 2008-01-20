@@ -13,7 +13,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, os.path, random, re, glob
-__version__ = '0.4.8' #pswrdgeniron dependency
+__version__ = '0.4.9' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -327,12 +327,13 @@ class pswrdgen:
         match = re.compile('^([a-zA-Z]{%i,%i})\s'%(low, high), re.M)
 
         allwords = set()    # Store the collection in a set to avoid duplicates
-        for f in self.WORDFILELISTS:
+        for f in self.WORDFILELISTS: # for each file
             data = open(f, 'r')
             try:
-                # Find all the words in this file and add them to the set of all words so far
-                newwords = set(match.findall('\n'.join(data)))
-                allwords.update(newwords)
+                for l in data: # for each line
+                    m = match.search(l) # look for a match
+                    if m: # if there is one
+                        allwords.add(m.group()) # add it
             finally:
                 data.close()
         self.cache = list(allwords) # Convert from a set to a list for indexing
