@@ -6,6 +6,7 @@ CAPLENGTH::2
 SWAPS::{'h': 4, 's': 5}
 ADDCHAR::'01234567890-_!@$%^&*(),.<>+='
 ADDCOUNT::2
+WORDFILES::
 endconfig"""
 
 ### IRONPYTHON SUPPORT START #pswrdgeniron dependency ###
@@ -13,7 +14,7 @@ import sys
 sys.path.append("C:\\Python24\\Lib")
 ### IRONPYTHON SUPPORT END   ###
 import os, os.path, random, re, glob
-__version__ = '0.4.9' #pswrdgeniron dependency
+__version__ = '0.4.10' #pswrdgeniron dependency
 __author__ = "Joseph P. Socoloski III, Edward Saxton"
 __url__ = 'http://pswrdgen.googlecode.com'
 __doc__ = 'Semantic Password generator that uses WordNet, random capitalization, and character swapping.Prerequisite:WordNet'
@@ -108,6 +109,10 @@ class pswrdgen:
         Decides what the operating system is and chooses the install directory of WordNet
         Assign the default values to the instance before calling run()
         """
+        #Read the previous settings and load into vars
+        self.loadsettings()
+
+    def _find_wordnet(self)
         self.WORDFILELISTS = [] #pswrdgeniron dependency
         self.cache = False
         self.wordnetlist = set()
@@ -124,8 +129,6 @@ class pswrdgen:
         b = os.path.join( FS_ROOT, 'usr', 'local', 'WordNet-[0-9].[0-9]', 'dict', 'index.noun')
         WORDNETPATH = (glob.glob(a) or glob.glob(b))[0]
         self.addnounfile(WORDNETPATH)
-        #Read the previous settings and load into vars
-        self.loadsettings()
 
     def do_setup(self):
         """Must leave method for pswrdgeniron backwards compatibility #pswrdgeniron dependency"""
@@ -284,6 +287,10 @@ class pswrdgen:
                     self.SWAPS = eval(self.lineList[i+5].split('::')[1].strip())
                     self.ADDCHAR = self.lineList[i+6].split('::')[1].strip()
                     self.ADDCOUNT = int(self.lineList[i+7].split('::')[1].strip())
+                    self.WORDFILELISTS = self.lineList[i+8].split('::')[1].strip().split('..')
+                    self.WORDFILELISTS = [i for i in self.WORDFILELISTS if i]
+                    if not self.WORDFILELISTS:
+                        self._find_wordnet()
                     break
         except NameError, x:
             print 'Exception: ', x
@@ -298,10 +305,11 @@ class pswrdgen:
             else:
                 thisfile = sys.argv[0]
             # IronPython WorkItemId=12283 workaround END
-            
+
+            files = '..'.join(self.WORDFILELISTS)
             for i, line in enumerate(self.lineList):
                 if '"""config' in line :
-                    for j, var in enumerate((self.GENCOUNT, self.MINLENGTH, self.MAXLENGTH, self.CAPLENGTH, self.SWAPS, self.ADDCHAR, self.ADDCOUNT)):
+                    for j, var in enumerate((self.GENCOUNT, self.MINLENGTH, self.MAXLENGTH, self.CAPLENGTH, self.SWAPS, self.ADDCHAR, self.ADDCOUNT, files)):
                         mark = i+j+1
                         header = self.lineList[mark].split('::')[0]
                         self.lineList[mark] = '%s::%s\n'%(header, var)
